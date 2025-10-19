@@ -18,6 +18,19 @@ TinyDES là phiên bản thu nhỏ của thuật toán DES (Data Encryption Stan
 - Python 3.6 trở lên
 - Không cần cài đặt thư viện bên ngoài
 
+### Cấu trúc thư mục
+```
+TinyDes/
+├── tinydes.py          # File chính chứa thuật toán TinyDES
+├── README.md           # File hướng dẫn này
+└── images/             # Thư mục chứa các ảnh minh họa
+    ├── main_menu.png
+    ├── encryption_mode.png
+    ├── decryption_mode.png
+    ├── test_functions_menu.png
+    └── tinydes_info.png
+```
+
 ### Chạy chương trình
 ```bash
 python tinydes.py
@@ -29,9 +42,14 @@ Khi chạy, chương trình sẽ hiển thị menu chọn chế độ:
 
 ## 📋 Hướng dẫn sử dụng chi tiết
 
+> **📸 Lưu ý về ảnh minh họa**: Các ảnh trong phần này được chụp từ giao diện thực tế của chương trình để giúp bạn hiểu rõ hơn về cách sử dụng. Các ảnh hiển thị đúng giao diện console với màu sắc và icon như trong chương trình thực tế.
+
 ### 1. Chế độ tương tác (Interactive Mode)
 
 Khi chọn chế độ 1, bạn sẽ thấy menu chính với 5 tùy chọn:
+
+![Menu chính TinyDES](images/main_menu.png)
+*Hình 1: Menu chính của chương trình TinyDES*
 
 #### 🔐 1. Mã hóa dữ liệu
 - **Chức năng**: Mã hóa plaintext 8-bit thành ciphertext
@@ -56,6 +74,9 @@ Khi chọn chế độ 1, bạn sẽ thấy menu chính với 5 tùy chọn:
 🔐 Ciphertext: 210 (decimal)
 ```
 
+![Chế độ mã hóa](images/encryption_mode.png)
+*Hình 2: Giao diện chế độ mã hóa với input và kết quả*
+
 #### 🔓 2. Giải mã dữ liệu
 - **Chức năng**: Giải mã ciphertext 8-bit thành plaintext ban đầu
 - **Input formats**: Tương tự như mã hóa
@@ -76,8 +97,14 @@ Khi chọn chế độ 1, bạn sẽ thấy menu chính với 5 tùy chọn:
 📄 Plaintext:  92 (decimal)
 ```
 
+![Chế độ giải mã](images/decryption_mode.png)
+*Hình 3: Giao diện chế độ giải mã với input và kết quả*
+
 #### 🧪 3. Test các hàm riêng lẻ
 Cho phép test từng thành phần của thuật toán:
+
+![Menu test các hàm](images/test_functions_menu.png)
+*Hình 4: Menu test các hàm riêng lẻ của TinyDES*
 
 ##### a) Expand Function (4 bit → 6 bit)
 - **Chức năng**: Mở rộng 4 bit thành 6 bit theo quy tắc: `b2b3b1b2b1b0`
@@ -103,6 +130,9 @@ Hiển thị thông tin chi tiết về:
 - Đặc điểm của thuật toán
 - Các thành phần chính
 - Ví dụ sử dụng
+
+![Thông tin TinyDES](images/tinydes_info.png)
+*Hình 5: Thông tin chi tiết về thuật toán TinyDES*
 
 #### 🚪 5. Thoát chương trình
 Kết thúc chương trình với thông báo cảm ơn.
@@ -193,6 +223,27 @@ Chương trình có các cơ chế xử lý lỗi:
 ## 📝 Tác giả
 
 Code được phát triển cho mục đích học tập môn An toàn bảo mật thông tin (ATBMTT).
+
+## 📸 Về các ảnh minh họa
+
+Các ảnh trong README này được chụp từ giao diện thực tế của chương trình TinyDES để giúp người dùng hiểu rõ hơn về cách sử dụng. 
+
+### 📁 Thư mục images/
+Thư mục `images/` chứa:
+- `main_menu.png` - Menu chính
+- `encryption_mode.png` - Giao diện mã hóa  
+- `decryption_mode.png` - Giao diện giải mã
+- `test_functions_menu.png` - Menu test hàm
+- `tinydes_info.png` - Thông tin TinyDES
+- `README_images.md` - Hướng dẫn tạo ảnh
+
+### 🔧 Tạo ảnh mới
+Nếu bạn muốn cập nhật ảnh minh họa:
+1. Chạy chương trình: `python tinydes.py`
+2. Chọn chế độ tương tác (1)
+3. Chụp màn hình từng giao diện
+4. Lưu với tên tương ứng trong thư mục `images/`
+5. Đảm bảo định dạng PNG và độ phân giải rõ ràng
 
 ## 📄 License
 
