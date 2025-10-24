@@ -1,250 +1,132 @@
-# TinyDES - Thuật toán mã hóa DES thu nhỏ
+# TinyDES Web Application
 
-## 📖 Giới thiệu
+## Giới thiệu
 
-TinyDES là phiên bản thu nhỏ của thuật toán DES (Data Encryption Standard), được thiết kế để học tập và nghiên cứu về mật mã học. Đây là một hệ thống mã hóa đối xứng sử dụng kiến trúc Feistel với 3 rounds.
+Ứng dụng web đơn giản cho thuật toán mã hóa TinyDES sử dụng FastAPI + HTML thuần. Không cần JavaScript phức tạp!
 
-## 🔧 Đặc điểm kỹ thuật
+## Kiến trúc hệ thống
 
-- **Block size**: 8 bit (chia thành 2 phần 4-bit: L0 và R0)
-- **Key size**: 8 bit (chia thành KL0 và KR0, mỗi phần 4-bit)
-- **Subkey size**: 6 bit cho mỗi round
-- **Số rounds**: 3 rounds Feistel
-- **Kiến trúc**: Feistel cipher
+### 🎯 **Frontend vs Backend**
 
-## 🚀 Cài đặt và chạy chương trình
+**Frontend (Giao diện người dùng):**
+- `templates/index.html` - Giao diện HTML với forms
+- `static/style.css` - Styling và responsive design
+- Không có JavaScript phức tạp, chỉ dùng HTML forms
 
-### Yêu cầu hệ thống
-- Python 3.6 trở lên
-- Không cần cài đặt thư viện bên ngoài
+**Backend (Xử lý logic):**
+- `main.py` - FastAPI server xử lý requests
+- `tinydes.py` - Thuật toán mã hóa TinyDES
+- `run_server.py` - Script khởi động server
 
-### Cấu trúc thư mục
+### 🔄 **Cách FastAPI hoạt động:**
+
+```
+Người dùng → mở trình duyệt (HTML) → nhập dữ liệu (VD: plaintext, key)
+
+HTML (frontend) → gửi yêu cầu (POST request) đến FastAPI (backend)
+
+FastAPI → nhận dữ liệu → gọi file thuật toán tinydes.py để xử lý → nhận kết quả → trả lại cho HTML để hiển thị
+```
+
+**Chi tiết luồng hoạt động:**
+1. **User** nhập dữ liệu vào form HTML
+2. **Form submission** → gửi POST request đến `/encrypt` hoặc `/decrypt`
+3. **FastAPI** nhận request → validate dữ liệu
+4. **FastAPI** gọi `tinydes.py` để thực hiện mã hóa/giải mã
+5. **TinyDES** trả về kết quả
+6. **FastAPI** render HTML template với kết quả
+7. **Browser** hiển thị kết quả cho user
+
+## Cài đặt và Chạy
+
+### 1. Cài đặt Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 2. Chạy Server
+```bash
+python run_server.py
+```
+
+### 3. Truy cập
+Mở trình duyệt: **http://localhost:8000**
+
+## Cấu trúc Project
+
 ```
 TinyDes/
-├── tinydes.py          # File chính chứa thuật toán TinyDES
-├── README.md           # File hướng dẫn này
-└── images/             # Thư mục chứa các ảnh minh họa
-    ├── main_menu.png
-    ├── encryption_mode.png
-    ├── decryption_mode.png
-    ├── test_functions_menu.png
-    └── tinydes_info.png
+├── main.py                 # 🔧 BACKEND: FastAPI server
+├── tinydes.py             # 🔧 BACKEND: Thuật toán TinyDES
+├── run_server.py          # 🔧 BACKEND: Script chạy server
+├── requirements.txt       # 📦 Dependencies
+├── templates/             # 🎨 FRONTEND: HTML templates
+│   └── index.html        # 🎨 FRONTEND: Template chính
+├── static/               # 🎨 FRONTEND: Static files
+│   └── style.css        # 🎨 FRONTEND: CSS styling
+└── README.md            # 📚 Hướng dẫn này
 ```
 
-### Chạy chương trình
-```bash
-python tinydes.py
+### 📁 **Phân loại file:**
+
+**🔧 Backend Files:**
+- `main.py` - FastAPI server với routes và form handling
+- `tinydes.py` - Thuật toán mã hóa TinyDES (core logic)
+- `run_server.py` - Script khởi động server
+
+**🎨 Frontend Files:**
+- `templates/index.html` - Giao diện HTML với forms
+- `static/style.css` - CSS styling cho giao diện
+
+**📦 Config Files:**
+- `requirements.txt` - Danh sách thư viện cần thiết
+
+
+## Tính năng
+
+- ✅ Mã hóa/Giải mã 8-bit dữ liệu
+- ✅ Giao diện đẹp và responsive
+- ✅ Hỗ trợ Binary, Hex, Decimal input
+- ✅ Server-side processing
+- ✅ Form-based interface (không cần JavaScript)
+
+## Cách sử dụng
+
+### 🎯 **Quy trình sử dụng:**
+
+1. **Mở trình duyệt** → Truy cập `http://localhost:8000`
+2. **Chọn tab "Mã hóa"** hoặc "Giải mã"
+3. **Nhập dữ liệu** vào form:
+   - **Mã hóa**: Plaintext + Key
+   - **Giải mã**: Ciphertext + Key
+4. **Nhấn nút** "Mã hóa" hoặc "Giải mã"
+5. **Xem kết quả** hiển thị ngay trên trang
+
+### 📝 **Ví dụ sử dụng:**
+
+**Mã hóa:**
+- Plaintext: `01011100` (binary) hoặc `5C` (hex) hoặc `92` (decimal)
+- Key: `01101010` (binary) hoặc `6A` (hex) hoặc `106` (decimal)
+- Kết quả: Ciphertext sẽ được hiển thị
+
+**Giải mã:**
+- Ciphertext: (kết quả từ bước mã hóa)
+- Key: `01101010` (cùng key đã dùng mã hóa)
+- Kết quả: Plaintext gốc
+
+### 🔄 **Luồng xử lý chi tiết:**
+
+```
+1. User nhập dữ liệu → HTML Form
+2. Submit form → POST request đến FastAPI
+3. FastAPI nhận request → Validate dữ liệu
+4. FastAPI gọi tinydes.py → Xử lý mã hóa/giải mã
+5. TinyDES trả kết quả → FastAPI
+6. FastAPI render template → HTML response
+7. Browser hiển thị kết quả → User
 ```
 
-Khi chạy, chương trình sẽ hiển thị menu chọn chế độ:
-- **Chế độ 1**: Chế độ tương tác (nhập dữ liệu)
-- **Chế độ 2**: Chế độ test tự động
-
-## 📋 Hướng dẫn sử dụng chi tiết
-
-> **📸 Lưu ý về ảnh minh họa**: Các ảnh trong phần này được chụp từ giao diện thực tế của chương trình để giúp bạn hiểu rõ hơn về cách sử dụng. Các ảnh hiển thị đúng giao diện console với màu sắc và icon như trong chương trình thực tế.
-
-### 1. Chế độ tương tác (Interactive Mode)
-
-Khi chọn chế độ 1, bạn sẽ thấy menu chính với 5 tùy chọn:
-
-![Menu chính TinyDES](images/main_menu.png)
-*Hình 1: Menu chính của chương trình TinyDES*
-
-#### 🔐 1. Mã hóa dữ liệu
-- **Chức năng**: Mã hóa plaintext 8-bit thành ciphertext
-- **Input formats**: 
-  - Binary: `01011100` (8 bit)
-  - Hexadecimal: `0x5C` hoặc `5C` (2 ký tự hex)
-  - Decimal: `92` (0-255)
-
-**Ví dụ sử dụng:**
-```
-🔸 Plaintext: 01011100
-🔸 Key: 01101010
-```
-
-**Kết quả:**
-```
-✅ KẾT QUẢ MÃ HÓA:
-📄 Plaintext:  01011100 (binary)
-🔑 Key:        01101010 (binary)
-🔐 Ciphertext: 11010010 (binary)
-🔐 Ciphertext: 0xd2 (hex)
-🔐 Ciphertext: 210 (decimal)
-```
-
-![Chế độ mã hóa](images/encryption_mode.png)
-*Hình 2: Giao diện chế độ mã hóa với input và kết quả*
-
-#### 🔓 2. Giải mã dữ liệu
-- **Chức năng**: Giải mã ciphertext 8-bit thành plaintext ban đầu
-- **Input formats**: Tương tự như mã hóa
-
-**Ví dụ sử dụng:**
-```
-🔸 Ciphertext: 11010010
-🔸 Key: 01101010
-```
-
-**Kết quả:**
-```
-✅ KẾT QUẢ GIẢI MÃ:
-🔐 Ciphertext: 11010010 (binary)
-🔑 Key:        01101010 (binary)
-📄 Plaintext:  01011100 (binary)
-📄 Plaintext:  0x5c (hex)
-📄 Plaintext:  92 (decimal)
-```
-
-![Chế độ giải mã](images/decryption_mode.png)
-*Hình 3: Giao diện chế độ giải mã với input và kết quả*
-
-#### 🧪 3. Test các hàm riêng lẻ
-Cho phép test từng thành phần của thuật toán:
-
-![Menu test các hàm](images/test_functions_menu.png)
-*Hình 4: Menu test các hàm riêng lẻ của TinyDES*
-
-##### a) Expand Function (4 bit → 6 bit)
-- **Chức năng**: Mở rộng 4 bit thành 6 bit theo quy tắc: `b2b3b1b2b1b0`
-- **Ví dụ**: `1100` → `001100`
-
-##### b) S-box Lookup (6 bit → 4 bit)
-- **Chức năng**: Tra cứu bảng S-box 4×16
-- **Cách hoạt động**: 
-  - Row index: bit đầu và cuối (b0b5)
-  - Column index: 4 bit giữa (b1b2b3b4)
-
-##### c) P-box Permutation (4 bit → 4 bit)
-- **Chức năng**: Hoán vị bit theo quy tắc: `b0b1b2b3` → `b2b0b3b1`
-- **Ví dụ**: `1000` → `0100`
-
-##### d) Key Compression (8 bit → 6 bit)
-- **Chức năng**: Nén khóa 8 bit thành 6 bit theo quy tắc: `k5k1k3k2k7k0`
-- **Input**: KL (4 bit) và KR (4 bit)
-- **Ví dụ**: KL=`0011`, KR=`0101` → `100111`
-
-#### 📚 4. Hiển thị thông tin về TinyDES
-Hiển thị thông tin chi tiết về:
-- Đặc điểm của thuật toán
-- Các thành phần chính
-- Ví dụ sử dụng
-
-![Thông tin TinyDES](images/tinydes_info.png)
-*Hình 5: Thông tin chi tiết về thuật toán TinyDES*
-
-#### 🚪 5. Thoát chương trình
-Kết thúc chương trình với thông báo cảm ơn.
-
-### 2. Chế độ test tự động
-
-Chế độ này chạy các test case mặc định để kiểm tra tính đúng đắn của thuật toán:
-
-- Test các hàm riêng lẻ (Expand, S-box, P-box, Compress)
-- Test mã hóa/giải mã với dữ liệu mẫu
-- Test với các định dạng khác nhau (binary, hex, decimal)
-
-## 🔬 Chi tiết kỹ thuật về thuật toán
-
-### Kiến trúc Feistel
-TinyDES sử dụng kiến trúc Feistel với 3 rounds:
-
-1. **Round 1**: 
-   - Shift key: 1 bit
-   - Feistel function: F(R0, K1)
-
-2. **Round 2**: 
-   - Shift key: 2 bit
-   - Feistel function: F(R1, K2)
-
-3. **Round 3**: 
-   - Shift key: 1 bit
-   - Feistel function: F(R2, K3)
-
-### Quá trình mã hóa
-```
-Plaintext (8-bit) → Split (L0, R0) → 3 Feistel Rounds → Ciphertext (8-bit)
-```
-
-### Quá trình giải mã
-```
-Ciphertext (8-bit) → Split (L3, R3) → 3 Feistel Rounds (reverse) → Plaintext (8-bit)
-```
-
-### Feistel Function
-Mỗi round thực hiện:
-1. **Expand**: Mở rộng R từ 4→6 bit
-2. **XOR**: Với subkey 6-bit
-3. **S-box**: Tra cứu bảng thay thế
-4. **P-box**: Hoán vị bit
-
-### Key Schedule
-- **KL0, KR0**: Khóa ban đầu (4-bit mỗi phần)
-- **K1**: Compress(shift1(KL0), shift1(KR0))
-- **K2**: Compress(shift2(KL1), shift2(KR1))
-- **K3**: Compress(shift1(KL2), shift1(KR2))
-
-## 📊 Ví dụ thực tế
-
-### Ví dụ 1: Mã hóa cơ bản
-```
-Input:
-- Plaintext: 01011100 (92 decimal, 0x5C hex)
-- Key: 01101010 (106 decimal, 0x6A hex)
-
-Output:
-- Ciphertext: 11010010 (210 decimal, 0xD2 hex)
-```
-
-### Ví dụ 2: Test các hàm riêng lẻ
-```
-Expand(1100) = 001100
-S-box(100101) = 0111
-P-box(1000) = 0100
-Compress(0011, 0101) = 100111
-```
-
-## ⚠️ Lưu ý quan trọng
-
-1. **Mục đích giáo dục**: TinyDES được thiết kế cho mục đích học tập, không nên sử dụng trong môi trường thực tế
-2. **Độ dài khóa ngắn**: 8-bit key có thể bị brute force dễ dàng
-3. **Ít rounds**: 3 rounds có thể không đủ để đảm bảo tính bảo mật cao
-4. **Format dữ liệu**: Chương trình hỗ trợ nhiều format input nhưng luôn chuyển về binary để xử lý
-
-## 🐛 Xử lý lỗi
-
-Chương trình có các cơ chế xử lý lỗi:
-- Kiểm tra format input hợp lệ
-- Validation độ dài bit
-- Thông báo lỗi rõ ràng bằng tiếng Việt
-- Gợi ý format đúng cho người dùng
-
-## 📝 Tác giả
-
-Code được phát triển cho mục đích học tập môn An toàn bảo mật thông tin (ATBMTT).
-
-## 📸 Về các ảnh minh họa
-
-Các ảnh trong README này được chụp từ giao diện thực tế của chương trình TinyDES để giúp người dùng hiểu rõ hơn về cách sử dụng. 
-
-### 📁 Thư mục images/
-Thư mục `images/` chứa:
-- `main_menu.png` - Menu chính
-- `encryption_mode.png` - Giao diện mã hóa  
-- `decryption_mode.png` - Giao diện giải mã
-- `test_functions_menu.png` - Menu test hàm
-- `tinydes_info.png` - Thông tin TinyDES
-- `README_images.md` - Hướng dẫn tạo ảnh
-
-### 🔧 Tạo ảnh mới
-Nếu bạn muốn cập nhật ảnh minh họa:
-1. Chạy chương trình: `python tinydes.py`
-2. Chọn chế độ tương tác (1)
-3. Chụp màn hình từng giao diện
-4. Lưu với tên tương ứng trong thư mục `images/`
-5. Đảm bảo định dạng PNG và độ phân giải rõ ràng
-
-## 📄 License
-
-Mã nguồn mở cho mục đích giáo dục và nghiên cứu.
+### 🎨 **Định dạng input được hỗ trợ:**
+- **Binary**: `01011100` (8 bit)
+- **Hex**: `5C` hoặc `0x5C`
+- **Decimal**: `92`
