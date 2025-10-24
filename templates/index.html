@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TinyDES Encryption System</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1><i class="fas fa-shield-alt"></i> TinyDES Encryption System</h1>
+            <p class="subtitle">Thuật toán mã hóa DES thu nhỏ - 8-bit block cipher</p>
+        </header>
+
+        <main class="main-content">
+            <div class="info-card">
+                <h3><i class="fas fa-info-circle"></i> Thông tin về TinyDES</h3>
+                <ul>
+                    <li><strong>Block size:</strong> 8 bit (chia thành 2 phần 4-bit)</li>
+                    <li><strong>Key size:</strong> 8 bit (chia thành KL0 và KR0)</li>
+                    <li><strong>Rounds:</strong> 3 rounds Feistel cipher</li>
+                    <li><strong>Subkey size:</strong> 6 bit cho mỗi round</li>
+                </ul>
+            </div>
+
+            {% if error %}
+            <div class="error-message">
+                <i class="fas fa-exclamation-triangle"></i> {{ error }}
+            </div>
+            {% endif %}
+
+            {% if result %}
+            <div class="result-section">
+                <h3><i class="fas fa-check-circle"></i> 
+                    {% if result.type == 'encrypt' %}
+                        Kết quả mã hóa
+                    {% else %}
+                        Kết quả giải mã
+                    {% endif %}
+                </h3>
+                <div class="result-grid">
+                    {% if result.type == 'encrypt' %}
+                    <div class="result-item">
+                        <label>Plaintext:</label>
+                        <span>{{ result.plaintext }}</span>
+                    </div>
+                    <div class="result-item">
+                        <label>Key:</label>
+                        <span>{{ result.key }}</span>
+                    </div>
+                    <div class="result-item">
+                        <label>Ciphertext (Binary):</label>
+                        <span>{{ result.ciphertext }}</span>
+                    </div>
+                    <div class="result-item">
+                        <label>Ciphertext (Hex):</label>
+                        <span>{{ result.ciphertext_hex }}</span>
+                    </div>
+                    <div class="result-item">
+                        <label>Ciphertext (Decimal):</label>
+                        <span>{{ result.ciphertext_decimal }}</span>
+                    </div>
+                    {% else %}
+                    <div class="result-item">
+                        <label>Ciphertext:</label>
+                        <span>{{ result.ciphertext }}</span>
+                    </div>
+                    <div class="result-item">
+                        <label>Key:</label>
+                        <span>{{ result.key }}</span>
+                    </div>
+                    <div class="result-item">
+                        <label>Plaintext (Binary):</label>
+                        <span>{{ result.plaintext }}</span>
+                    </div>
+                    <div class="result-item">
+                        <label>Plaintext (Hex):</label>
+                        <span>{{ result.plaintext_hex }}</span>
+                    </div>
+                    <div class="result-item">
+                        <label>Plaintext (Decimal):</label>
+                        <span>{{ result.plaintext_decimal }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="tabs">
+                <button class="tab-button active" onclick="showTab('encrypt')">
+                    <i class="fas fa-lock"></i> Mã hóa
+                </button>
+                <button class="tab-button" onclick="showTab('decrypt')">
+                    <i class="fas fa-unlock"></i> Giải mã
+                </button>
+                <button class="tab-button" onclick="showTab('theory')">
+                    <i class="fas fa-book"></i> Lý thuyết
+                </button>
+                <button class="tab-button" onclick="showTab('test')">
+                    <i class="fas fa-vial"></i> Test Functions
+                </button>
+            </div>
+
+            <!-- Tab Mã hóa -->
+            <div class="tab-content active" id="encrypt-tab">
+                <form method="POST" action="/encrypt" class="encrypt-form">
+                    <div class="form-group">
+                        <label for="plaintext">
+                            <i class="fas fa-file-text"></i> Plaintext (8-bit)
+                        </label>
+                        <input type="text" id="plaintext" name="plaintext" 
+                               placeholder="Nhập plaintext (VD: 01011100, 5C, 92)"
+                               value="{{ plaintext if plaintext else '' }}">
+                        <div class="input-format">
+                            <span>Có thể nhập: Binary (01011100), Hex (5C), Decimal (92)</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="key">
+                            <i class="fas fa-key"></i> Key (8-bit)
+                        </label>
+                        <input type="text" id="key" name="key" 
+                               placeholder="Nhập key (VD: 01101010, 6A, 106)"
+                               value="{{ key if key else '' }}">
+                    </div>
+
+                    <button type="submit" class="action-button encrypt-btn">
+                        <i class="fas fa-lock"></i> Mã hóa
+                    </button>
+                </form>
+            </div>
+
+            <!-- Tab Giải mã -->
+            <div class="tab-content" id="decrypt-tab">
+                <form method="POST" action="/decrypt" class="decrypt-form">
+                    <div class="form-group">
+                        <label for="ciphertext">
+                            <i class="fas fa-file-code"></i> Ciphertext (8-bit)
+                        </label>
+                        <input type="text" id="ciphertext" name="ciphertext" 
+                               placeholder="Nhập ciphertext (VD: 11001101, CD, 205)"
+                               value="{{ ciphertext if ciphertext else '' }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="key_decrypt">
+                            <i class="fas fa-key"></i> Key (8-bit)
+                        </label>
+                        <input type="text" id="key_decrypt" name="key" 
+                               placeholder="Nhập key (VD: 01101010, 6A, 106)"
+                               value="{{ key if key else '' }}">
+                    </div>
+
+                    <button type="submit" class="action-button decrypt-btn">
+                        <i class="fas fa-unlock"></i> Giải mã
+                    </button>
+                </form>
+            </div>
+
+            <!-- Tab Lý thuyết -->
+            <div class="tab-content" id="theory-tab">
+                <div class="theory-section">
+                    <h3><i class="fas fa-book"></i> Lý thuyết TinyDES</h3>
+                    
+                    <div class="theory-content">
+                        <div class="theory-intro">
+                            <h4><i class="fas fa-info-circle"></i> Giới thiệu về TinyDES</h4>
+                            <p>TinyDES là một phiên bản thu nhỏ của thuật toán mã hóa DES (Data Encryption Standard), được thiết kế để dễ hiểu và học tập về các nguyên lý cơ bản của mã hóa khối.</p>
+                        </div>
+
+                        <div class="theory-properties">
+                            <h4><i class="fas fa-cogs"></i> Tính chất của hệ mã TinyDES</h4>
+                            <ul>
+                                <li><strong>Loại mã:</strong> Thuộc hệ mã Feistel gồm 3 vòng</li>
+                                <li><strong>Kích thước khối:</strong> 8 bit (chia thành 2 phần 4-bit)</li>
+                                <li><strong>Kích thước khóa:</strong> 8 bit (chia thành KL0 và KR0)</li>
+                                <li><strong>Khóa con:</strong> Mỗi vòng dùng khóa con có kích thước 6 bit được trích ra từ khóa chính</li>
+                            </ul>
+                        </div>
+
+                        <div class="theory-structure">
+                            <h4><i class="fas fa-sitemap"></i> Cấu trúc của TinyDES</h4>
+                            <p>Hệ mã TinyDES gồm 2 phần chính:</p>
+                            <ul>
+                                <li><strong>Các vòng Feistel:</strong> Thực hiện quá trình mã hóa/giải mã</li>
+                                <li><strong>Thuật toán sinh khóa con:</strong> Tạo ra các khóa con cho từng vòng</li>
+                            </ul>
+                            
+                            <div class="theory-image">
+                                <img src="/static/CautruccuaTinyDes.png" alt="Cấu trúc TinyDES" class="theory-diagram">
+                                <p class="image-caption">Sơ đồ cấu trúc của thuật toán TinyDES</p>
+                            </div>
+                        </div>
+
+                        <div class="theory-feistel">
+                            <h4><i class="fas fa-exchange-alt"></i> Các vòng Feistel của TinyDES</h4>
+                            <p>Mỗi vòng Feistel trong TinyDES thực hiện các bước sau:</p>
+                            <ol>
+                                <li><strong>Mở rộng (Expansion):</strong> Mở rộng 4 bit thành 6 bit</li>
+                                <li><strong>XOR với khóa con:</strong> Thực hiện phép XOR với khóa con 6 bit</li>
+                                <li><strong>S-box:</strong> Thay thế 6 bit thành 4 bit thông qua bảng S-box</li>
+                                <li><strong>P-box:</strong> Hoán vị 4 bit theo bảng P-box</li>
+                                <li><strong>XOR với nửa trái:</strong> Kết quả XOR với nửa trái của khối</li>
+                            </ol>
+                        </div>
+
+                        <div class="theory-key-schedule">
+                            <h4><i class="fas fa-key"></i> Thuật toán sinh khóa con</h4>
+                            <p>Quá trình sinh khóa con trong TinyDES:</p>
+                            <ol>
+                                <li>Khóa 8 bit được chia thành KL0 (4 bit trái) và KR0 (4 bit phải)</li>
+                                <li>Mỗi vòng sử dụng một khóa con 6 bit được tạo từ KL0 và KR0</li>
+                                <li>Khóa con được tạo bằng cách nén và hoán vị các bit từ KL0 và KR0</li>
+                            </ol>
+                        </div>
+
+                        <div class="theory-security">
+                            <h4><i class="fas fa-shield-alt"></i> Đặc điểm bảo mật</h4>
+                            <div class="security-note">
+                                <p><strong>Lưu ý:</strong> TinyDES chỉ là phiên bản giáo dục với mục đích học tập. Do kích thước khóa nhỏ (8 bit) và số vòng ít (3 vòng), nó không đủ an toàn cho ứng dụng thực tế.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Test Functions -->
+            <div class="tab-content" id="test-tab">
+                <div class="test-section">
+                    <h3><i class="fas fa-vial"></i> Test Functions</h3>
+                    <p class="test-description">Kiểm tra từng hàm riêng lẻ của TinyDES để hiểu rõ cách hoạt động</p>
+                    
+                    <div class="test-functions">
+                        <!-- Test Expand Function -->
+                        <div class="test-function-card">
+                            <h4><i class="fas fa-expand-arrows-alt"></i> Test Expand Function</h4>
+                            <p>Mở rộng 4 bit thành 6 bit: b0b1b2b3 → b2b3b1b2b1b0</p>
+                            <form method="POST" action="/test/expand" class="test-form">
+                                <div class="form-group">
+                                    <label for="expand_input">Input (4-bit):</label>
+                                    <input type="text" id="expand_input" name="input" 
+                                           placeholder="VD: 1010" maxlength="4">
+                                </div>
+                                <button type="submit" class="test-button">
+                                    <i class="fas fa-play"></i> Test Expand
+                                </button>
+                            </form>
+                            {% if test_result and test_result.function == 'expand' %}
+                            <div class="test-result">
+                                <strong>Kết quả:</strong> {{ test_result.input }} → {{ test_result.output }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Test S-box Function -->
+                        <div class="test-function-card">
+                            <h4><i class="fas fa-table"></i> Test S-box Lookup</h4>
+                            <p>Thay thế 6 bit thành 4 bit thông qua bảng S-box</p>
+                            <form method="POST" action="/test/sbox" class="test-form">
+                                <div class="form-group">
+                                    <label for="sbox_input">Input (6-bit):</label>
+                                    <input type="text" id="sbox_input" name="input" 
+                                           placeholder="VD: 101010" maxlength="6">
+                                </div>
+                                <button type="submit" class="test-button">
+                                    <i class="fas fa-play"></i> Test S-box
+                                </button>
+                            </form>
+                            {% if test_result and test_result.function == 'sbox' %}
+                            <div class="test-result">
+                                <strong>Kết quả:</strong> {{ test_result.input }} → {{ test_result.output }}
+                                <br><small>Row: {{ test_result.row }}, Column: {{ test_result.column }}</small>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Test P-box Function -->
+                        <div class="test-function-card">
+                            <h4><i class="fas fa-random"></i> Test P-box Permutation</h4>
+                            <p>Hoán vị 4 bit: b0b1b2b3 → b2b0b3b1</p>
+                            <form method="POST" action="/test/pbox" class="test-form">
+                                <div class="form-group">
+                                    <label for="pbox_input">Input (4-bit):</label>
+                                    <input type="text" id="pbox_input" name="input" 
+                                           placeholder="VD: 1010" maxlength="4">
+                                </div>
+                                <button type="submit" class="test-button">
+                                    <i class="fas fa-play"></i> Test P-box
+                                </button>
+                            </form>
+                            {% if test_result and test_result.function == 'pbox' %}
+                            <div class="test-result">
+                                <strong>Kết quả:</strong> {{ test_result.input }} → {{ test_result.output }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Test Compress Key Function -->
+                        <div class="test-function-card">
+                            <h4><i class="fas fa-compress"></i> Test Compress Key</h4>
+                            <p>Nén khóa từ KL0 (4-bit) và KR0 (4-bit) thành khóa con 6-bit</p>
+                            <form method="POST" action="/test/compress" class="test-form">
+                                <div class="form-group">
+                                    <label for="kl_input">KL0 (4-bit):</label>
+                                    <input type="text" id="kl_input" name="kl" 
+                                           placeholder="VD: 1010" maxlength="4">
+                                </div>
+                                <div class="form-group">
+                                    <label for="kr_input">KR0 (4-bit):</label>
+                                    <input type="text" id="kr_input" name="kr" 
+                                           placeholder="VD: 0101" maxlength="4">
+                                </div>
+                                <button type="submit" class="test-button">
+                                    <i class="fas fa-play"></i> Test Compress
+                                </button>
+                            </form>
+                            {% if test_result and test_result.function == 'compress' %}
+                            <div class="test-result">
+                                <strong>Kết quả:</strong> KL0={{ test_result.kl }}, KR0={{ test_result.kr }} → {{ test_result.output }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Test Full Encryption -->
+                        <div class="test-function-card">
+                            <h4><i class="fas fa-lock"></i> Test Full Encryption</h4>
+                            <p>Kiểm tra toàn bộ quá trình mã hóa TinyDES</p>
+                            <form method="POST" action="/test/encrypt" class="test-form">
+                                <div class="form-group">
+                                    <label for="test_plaintext">Plaintext (8-bit):</label>
+                                    <input type="text" id="test_plaintext" name="plaintext" 
+                                           placeholder="VD: 01011100" maxlength="8">
+                                </div>
+                                <div class="form-group">
+                                    <label for="test_key">Key (8-bit):</label>
+                                    <input type="text" id="test_key" name="key" 
+                                           placeholder="VD: 01101010" maxlength="8">
+                                </div>
+                                <button type="submit" class="test-button">
+                                    <i class="fas fa-play"></i> Test Encryption
+                                </button>
+                            </form>
+                            {% if test_result and test_result.function == 'encrypt' %}
+                            <div class="test-result">
+                                <strong>Kết quả:</strong> {{ test_result.plaintext }} + {{ test_result.key }} → {{ test_result.output }}
+                                <br><small>Subkeys: {{ test_result.subkeys }}</small>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h3><i class="fas fa-info-circle"></i> Hướng dẫn sử dụng</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <h4>Định dạng input</h4>
+                        <ul>
+                            <li><strong>Binary:</strong> 01011100 (8 bit)</li>
+                            <li><strong>Hex:</strong> 5C hoặc 0x5C</li>
+                            <li><strong>Decimal:</strong> 92</li>
+                        </ul>
+                    </div>
+                    <div class="info-item">
+                        <h4>Ví dụ</h4>
+                        <ul>
+                            <li><strong>Plaintext:</strong> 01011100</li>
+                            <li><strong>Key:</strong> 01101010</li>
+                            <li><strong>Kết quả:</strong> Sẽ được tính toán</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2024 TinyDES Encryption System - Thuật toán mã hóa DES thu nhỏ</p>
+        </footer>
+    </div>
+
+    <script>
+        // Tab functionality
+        function showTab(tabName) {
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // Remove active class from all buttons
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach(button => button.classList.remove('active'));
+            
+            // Show selected tab content
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
