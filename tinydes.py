@@ -206,6 +206,42 @@ class TinyDES:
         
         return pbox_result
     
+    def feistel_function_detailed(self, r, subkey):
+        """
+        Feistel function F(R, K) with detailed steps
+        Returns: dict with all intermediate steps
+        """
+        # Expand R from 4 bits to 6 bits
+        expanded_r = self.expand(r)
+        
+        # XOR with subkey
+        xor_result = self.binary_to_int(expanded_r) ^ self.binary_to_int(subkey)
+        xor_result_bin = self.int_to_binary(xor_result, 6)
+        
+        # S-box lookup (with row and column)
+        b0, b1, b2, b3, b4, b5 = xor_result_bin[0], xor_result_bin[1], xor_result_bin[2], xor_result_bin[3], xor_result_bin[4], xor_result_bin[5]
+        row = self.binary_to_int(b0 + b5)
+        col = self.binary_to_int(b1 + b2 + b3 + b4)
+        sbox_value = self.sbox[row][col]
+        sbox_result = self.int_to_binary(sbox_value, 4)
+        
+        # P-box permutation
+        pbox_result = self.pbox_permute(sbox_result)
+        
+        return {
+            'input_r': r,
+            'expanded': expanded_r,
+            'subkey': subkey,
+            'xor_result': xor_result_bin,
+            'sbox_input': xor_result_bin,
+            'sbox_row': row,
+            'sbox_col': col,
+            'sbox_value': sbox_value,
+            'sbox_output': sbox_result,
+            'pbox_output': pbox_result,
+            'final_output': pbox_result
+        }
+    
     def feistel_round(self, left, right, subkey):
         """
         Single Feistel round
@@ -251,6 +287,300 @@ class TinyDES:
         ciphertext = left + right
         
         return ciphertext
+    
+    def encrypt_detailed(self, plaintext, key):
+        """
+        Encrypt 8-bit plaintext with 8-bit key - detailed version
+        Returns: dict with all intermediate steps
+        """
+        # Convert to binary strings if needed
+        if isinstance(plaintext, int):
+            pt_bin = self.int_to_binary(plaintext, 8)
+        else:
+            pt_bin = plaintext
+        
+        if isinstance(key, int):
+            key_bin = self.int_to_binary(key, 8)
+        else:
+            key_bin = key
+        
+        # Ensure we have 8 bits
+        pt_bin = pt_bin.zfill(8)
+        key_bin = key_bin.zfill(8)
+        
+        # Split plaintext into left and right halves
+        left = pt_bin[:4]
+        right = pt_bin[4:]
+        
+        # Split key into KL0 and KR0
+        kl0 = key_bin[:4]
+        kr0 = key_bin[4:]
+        
+        # Generate subkeys with details
+        subkeys = []
+        subkey_details = []
+        kl_current = kl0
+        kr_current = kr0
+        
+        # Round 1: shift by 1 bit
+        kl1 = self.left_circular_shift(kl_current, 1, 4)
+        kr1 = self.left_circular_shift(kr_current, 1, 4)
+        k1 = self.compress_key(kl1, kr1)
+        subkeys.append(k1)
+        subkey_details.append({
+            'round': 1,
+            'kl': kl_current,
+            'kr': kr_current,
+            'kl_shifted': kl1,
+            'kr_shifted': kr1,
+            'subkey': k1,
+            'shift_amount': 1
+        })
+        
+        # Round 2: shift by 2 bits
+        kl2 = self.left_circular_shift(kl1, 2, 4)
+        kr2 = self.left_circular_shift(kr1, 2, 4)
+        k2 = self.compress_key(kl2, kr2)
+        subkeys.append(k2)
+        subkey_details.append({
+            'round': 2,
+            'kl': kl1,
+            'kr': kr1,
+            'kl_shifted': kl2,
+            'kr_shifted': kr2,
+            'subkey': k2,
+            'shift_amount': 2
+        })
+        
+        # Round 3: shift by 1 bit
+        kl3 = self.left_circular_shift(kl2, 1, 4)
+        kr3 = self.left_circular_shift(kr2, 1, 4)
+        k3 = self.compress_key(kl3, kr3)
+        subkeys.append(k3)
+        subkey_details.append({
+            'round': 3,
+            'kl': kl2,
+            'kr': kr2,
+            'kl_shifted': kl3,
+            'kr_shifted': kr3,
+            'subkey': k3,
+            'shift_amount': 1
+        })
+        
+        # Perform 3 Feistel rounds with details
+        rounds = []
+        current_left = left
+        current_right = right
+        
+        for i in range(3):
+            round_num = i + 1
+            # Get feistel function details
+            feistel_details = self.feistel_function_detailed(current_right, subkeys[i])
+            
+            # Calculate new left and right
+            new_left = current_right
+            f_result = feistel_details['final_output']
+            new_right_int = self.binary_to_int(current_left) ^ self.binary_to_int(f_result)
+            new_right = self.int_to_binary(new_right_int, 4)
+            
+            rounds.append({
+                'round': round_num,
+                'input_left': current_left,
+                'input_right': current_right,
+                'subkey': subkeys[i],
+                'expansion': feistel_details['expanded'],
+                'xor_with_key': feistel_details['xor_result'],
+                'sbox_input': feistel_details['sbox_input'],
+                'sbox_row': feistel_details['sbox_row'],
+                'sbox_col': feistel_details['sbox_col'],
+                'sbox_value': feistel_details['sbox_value'],
+                'sbox_output': feistel_details['sbox_output'],
+                'pbox_output': feistel_details['pbox_output'],
+                'f_result': f_result,
+                'new_left': new_left,
+                'new_right': new_right,
+                'output_left': new_left,
+                'output_right': new_right
+            })
+            
+            current_left = new_left
+            current_right = new_right
+        
+        # Final result
+        ciphertext = current_left + current_right
+        
+        return {
+            'plaintext': pt_bin,
+            'plaintext_hex': hex(int(pt_bin, 2)),
+            'plaintext_decimal': int(pt_bin, 2),
+            'key': key_bin,
+            'key_hex': hex(int(key_bin, 2)),
+            'key_decimal': int(key_bin, 2),
+            'kl0': kl0,
+            'kr0': kr0,
+            'initial_left': left,
+            'initial_right': right,
+            'subkey_details': subkey_details,
+            'rounds': rounds,
+            'ciphertext': ciphertext,
+            'ciphertext_hex': hex(int(ciphertext, 2)),
+            'ciphertext_decimal': int(ciphertext, 2),
+            'final_left': current_left,
+            'final_right': current_right
+        }
+    
+    def decrypt_detailed(self, ciphertext, key):
+        """
+        Decrypt 8-bit ciphertext with 8-bit key - detailed version
+        Returns: dict with all intermediate steps
+        """
+        # Convert to binary strings if needed
+        if isinstance(ciphertext, int):
+            ct_bin = self.int_to_binary(ciphertext, 8)
+        else:
+            ct_bin = ciphertext
+        
+        if isinstance(key, int):
+            key_bin = self.int_to_binary(key, 8)
+        else:
+            key_bin = key
+        
+        # Ensure we have 8 bits
+        ct_bin = ct_bin.zfill(8)
+        key_bin = key_bin.zfill(8)
+        
+        # Split ciphertext into left and right halves
+        left = ct_bin[:4]
+        right = ct_bin[4:]
+        
+        # Split key into KL0 and KR0
+        kl0 = key_bin[:4]
+        kr0 = key_bin[4:]
+        
+        # Generate subkeys with details (same as encryption)
+        subkeys = []
+        subkey_details = []
+        kl_current = kl0
+        kr_current = kr0
+        
+        # Round 1: shift by 1 bit
+        kl1 = self.left_circular_shift(kl_current, 1, 4)
+        kr1 = self.left_circular_shift(kr_current, 1, 4)
+        k1 = self.compress_key(kl1, kr1)
+        subkeys.append(k1)
+        subkey_details.append({
+            'round': 1,
+            'kl': kl_current,
+            'kr': kr_current,
+            'kl_shifted': kl1,
+            'kr_shifted': kr1,
+            'subkey': k1,
+            'shift_amount': 1
+        })
+        
+        # Round 2: shift by 2 bits
+        kl2 = self.left_circular_shift(kl1, 2, 4)
+        kr2 = self.left_circular_shift(kr1, 2, 4)
+        k2 = self.compress_key(kl2, kr2)
+        subkeys.append(k2)
+        subkey_details.append({
+            'round': 2,
+            'kl': kl1,
+            'kr': kr1,
+            'kl_shifted': kl2,
+            'kr_shifted': kr2,
+            'subkey': k2,
+            'shift_amount': 2
+        })
+        
+        # Round 3: shift by 1 bit
+        kl3 = self.left_circular_shift(kl2, 1, 4)
+        kr3 = self.left_circular_shift(kr2, 1, 4)
+        k3 = self.compress_key(kl3, kr3)
+        subkeys.append(k3)
+        subkey_details.append({
+            'round': 3,
+            'kl': kl2,
+            'kr': kr2,
+            'kl_shifted': kl3,
+            'kr_shifted': kr3,
+            'subkey': k3,
+            'shift_amount': 1
+        })
+        
+        # Perform 3 Feistel rounds in reverse order with details
+        # For decryption: process rounds in reverse order (subkey[2], subkey[1], subkey[0])
+        rounds = []
+        current_left = left
+        current_right = right
+        
+        for i in range(2, -1, -1):  # Reverse order: 2, 1, 0 (use subkeys[2], subkeys[1], subkeys[0])
+            round_num = 3 - i  # Display round number (1, 2, 3)
+            
+            # Save current state before processing
+            input_left = current_left
+            input_right = current_right
+            
+            # For decryption: F function uses current_left as input (not current_right like encryption)
+            feistel_details = self.feistel_function_detailed(current_left, subkeys[i])
+            
+            # Calculate new values for decryption
+            f_result = feistel_details['final_output']
+            # R_new = R_old XOR F(L_old, K)
+            new_right_int = self.binary_to_int(current_right) ^ self.binary_to_int(f_result)
+            new_right = self.int_to_binary(new_right_int, 4)
+            # L_new = L_old (left stays the same, becomes right in next round)
+            new_left = current_left
+            
+            rounds.append({
+                'round': round_num,
+                'input_left': input_left,
+                'input_right': input_right,
+                'subkey': subkeys[i],
+                'subkey_round': i + 1,  # Which subkey is used
+                'expansion': feistel_details['expanded'],
+                'xor_with_key': feistel_details['xor_result'],
+                'sbox_input': feistel_details['sbox_input'],
+                'sbox_row': feistel_details['sbox_row'],
+                'sbox_col': feistel_details['sbox_col'],
+                'sbox_value': feistel_details['sbox_value'],
+                'sbox_output': feistel_details['sbox_output'],
+                'pbox_output': feistel_details['pbox_output'],
+                'f_result': f_result,
+                'xor_left_with_f': f"{current_right} XOR {f_result} = {new_right}",
+                'new_left': new_left,
+                'new_right': new_right,
+                'output_left': new_left,
+                'output_right': new_right
+            })
+            
+            # Update for next iteration: swap left and right
+            # L_next = R_new, R_next = L_old
+            current_left = new_right
+            current_right = new_left
+        
+        # Final result: current_left and current_right are already swapped, so combine them
+        plaintext = current_left + current_right
+        
+        return {
+            'ciphertext': ct_bin,
+            'ciphertext_hex': hex(int(ct_bin, 2)),
+            'ciphertext_decimal': int(ct_bin, 2),
+            'key': key_bin,
+            'key_hex': hex(int(key_bin, 2)),
+            'key_decimal': int(key_bin, 2),
+            'kl0': kl0,
+            'kr0': kr0,
+            'initial_left': left,
+            'initial_right': right,
+            'subkey_details': subkey_details,
+            'rounds': rounds,
+            'plaintext': plaintext,
+            'plaintext_hex': hex(int(plaintext, 2)),
+            'plaintext_decimal': int(plaintext, 2),
+            'final_left': current_left,
+            'final_right': current_right
+        }
     
     def decrypt(self, ciphertext, key):
         """

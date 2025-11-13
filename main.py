@@ -33,6 +33,15 @@ app = FastAPI(
 
 # Cấu hình templates và static files
 templates = Jinja2Templates(directory="templates")
+
+# Add custom filter for hex formatting
+def hex_filter(value):
+    """Convert integer to hex string"""
+    if isinstance(value, int):
+        return f"0x{value:X}"
+    return str(value)
+
+templates.env.filters['hex'] = hex_filter
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Khởi tạo TinyDES instance
@@ -123,9 +132,77 @@ def convert_input(user_input: str, expected_bits: int) -> Union[str, None]:
 # Web Routes
 
 @app.get("/", response_class=HTMLResponse)
-async def home(request: Request):
+async def home(request: Request, tab: str = "theory"):
     """Trang chủ với giao diện TinyDES"""
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse("index.html", {
+        "request": request,
+        "active_tab": tab
+    })
+
+@app.post("/process", response_class=HTMLResponse)
+async def process_detailed(request: Request, plaintext: str = Form(...), key: str = Form(...), process_type: str = Form("encrypt")):
+    """Xử lý form hiển thị quy trình chi tiết mã hóa/giải mã"""
+    try:
+        # Convert inputs
+        if process_type == "encrypt":
+            input_bin = convert_input(plaintext, 8)
+            if input_bin is None:
+                error = "Định dạng plaintext không hợp lệ"
+                return templates.TemplateResponse("index.html", {
+                    "request": request, 
+                    "error": error,
+                    "plaintext": plaintext,
+                    "key": key,
+                    "active_tab": "process"
+                })
+        else:  # decrypt
+            input_bin = convert_input(plaintext, 8)
+            if input_bin is None:
+                error = "Định dạng ciphertext không hợp lệ"
+                return templates.TemplateResponse("index.html", {
+                    "request": request, 
+                    "error": error,
+                    "plaintext": plaintext,
+                    "key": key,
+                    "active_tab": "process"
+                })
+        
+        key_bin = convert_input(key, 8)
+        if key_bin is None:
+            error = "Định dạng key không hợp lệ"
+            return templates.TemplateResponse("index.html", {
+                "request": request, 
+                "error": error,
+                "plaintext": plaintext,
+                "key": key,
+                "active_tab": "process"
+            })
+        
+        # Get detailed process
+        if process_type == "encrypt":
+            process_details = tinydes.encrypt_detailed(input_bin, key_bin)
+            process_details['type'] = 'encrypt'
+        else:
+            process_details = tinydes.decrypt_detailed(input_bin, key_bin)
+            process_details['type'] = 'decrypt'
+        
+        return templates.TemplateResponse("index.html", {
+            "request": request,
+            "process_details": process_details,
+            "plaintext": plaintext,
+            "key": key,
+            "active_tab": "process"
+        })
+        
+    except Exception as e:
+        error = f"Lỗi xử lý: {str(e)}"
+        return templates.TemplateResponse("index.html", {
+            "request": request, 
+            "error": error,
+            "plaintext": plaintext,
+            "key": key,
+            "active_tab": "process"
+        })
 
 @app.post("/encrypt", response_class=HTMLResponse)
 async def encrypt_form(request: Request, plaintext: str = Form(...), key: str = Form(...)):
@@ -141,7 +218,8 @@ async def encrypt_form(request: Request, plaintext: str = Form(...), key: str = 
                 "request": request, 
                 "error": error,
                 "plaintext": plaintext,
-                "key": key
+                "key": key,
+                "active_tab": "encrypt"
             })
         
         if key_bin is None:
@@ -150,7 +228,8 @@ async def encrypt_form(request: Request, plaintext: str = Form(...), key: str = 
                 "request": request, 
                 "error": error,
                 "plaintext": plaintext,
-                "key": key
+                "key": key,
+                "active_tab": "encrypt"
             })
         
         # Encrypt
@@ -169,7 +248,8 @@ async def encrypt_form(request: Request, plaintext: str = Form(...), key: str = 
             "request": request, 
             "result": result,
             "plaintext": plaintext,
-            "key": key
+            "key": key,
+            "active_tab": "encrypt"
         })
         
     except Exception as e:
@@ -178,7 +258,8 @@ async def encrypt_form(request: Request, plaintext: str = Form(...), key: str = 
             "request": request, 
             "error": error,
             "plaintext": plaintext,
-            "key": key
+            "key": key,
+            "active_tab": "encrypt"
         })
 
 @app.post("/decrypt", response_class=HTMLResponse)
@@ -195,7 +276,8 @@ async def decrypt_form(request: Request, ciphertext: str = Form(...), key: str =
                 "request": request, 
                 "error": error,
                 "ciphertext": ciphertext,
-                "key": key
+                "key": key,
+                "active_tab": "decrypt"
             })
         
         if key_bin is None:
@@ -204,7 +286,8 @@ async def decrypt_form(request: Request, ciphertext: str = Form(...), key: str =
                 "request": request, 
                 "error": error,
                 "ciphertext": ciphertext,
-                "key": key
+                "key": key,
+                "active_tab": "decrypt"
             })
         
         # Decrypt
@@ -223,7 +306,8 @@ async def decrypt_form(request: Request, ciphertext: str = Form(...), key: str =
             "request": request, 
             "result": result,
             "ciphertext": ciphertext,
-            "key": key
+            "key": key,
+            "active_tab": "decrypt"
         })
         
     except Exception as e:
@@ -232,7 +316,8 @@ async def decrypt_form(request: Request, ciphertext: str = Form(...), key: str =
             "request": request, 
             "error": error,
             "ciphertext": ciphertext,
-            "key": key
+            "key": key,
+            "active_tab": "decrypt"
         })
 
 # API Endpoints (Optional - có thể xóa nếu không cần)
@@ -273,7 +358,8 @@ async def test_expand(request: Request, input: str = Form(...)):
             error = "Input phải là chuỗi binary 4-bit"
             return templates.TemplateResponse("index.html", {
                 "request": request, 
-                "error": error
+                "error": error,
+                "active_tab": "test"
             })
         
         # Test expand function
@@ -287,14 +373,16 @@ async def test_expand(request: Request, input: str = Form(...)):
         
         return templates.TemplateResponse("index.html", {
             "request": request,
-            "test_result": test_result
+            "test_result": test_result,
+            "active_tab": "test"
         })
         
     except Exception as e:
         error = f"Lỗi test expand: {str(e)}"
         return templates.TemplateResponse("index.html", {
             "request": request, 
-            "error": error
+            "error": error,
+            "active_tab": "test"
         })
 
 @app.post("/test/sbox", response_class=HTMLResponse)
@@ -306,7 +394,8 @@ async def test_sbox(request: Request, input: str = Form(...)):
             error = "Input phải là chuỗi binary 6-bit"
             return templates.TemplateResponse("index.html", {
                 "request": request, 
-                "error": error
+                "error": error,
+                "active_tab": "test"
             })
         
         # Test S-box function
@@ -327,14 +416,16 @@ async def test_sbox(request: Request, input: str = Form(...)):
         
         return templates.TemplateResponse("index.html", {
             "request": request,
-            "test_result": test_result
+            "test_result": test_result,
+            "active_tab": "test"
         })
         
     except Exception as e:
         error = f"Lỗi test S-box: {str(e)}"
         return templates.TemplateResponse("index.html", {
             "request": request, 
-            "error": error
+            "error": error,
+            "active_tab": "test"
         })
 
 @app.post("/test/pbox", response_class=HTMLResponse)
@@ -346,7 +437,8 @@ async def test_pbox(request: Request, input: str = Form(...)):
             error = "Input phải là chuỗi binary 4-bit"
             return templates.TemplateResponse("index.html", {
                 "request": request, 
-                "error": error
+                "error": error,
+                "active_tab": "test"
             })
         
         # Test P-box function
@@ -360,14 +452,16 @@ async def test_pbox(request: Request, input: str = Form(...)):
         
         return templates.TemplateResponse("index.html", {
             "request": request,
-            "test_result": test_result
+            "test_result": test_result,
+            "active_tab": "test"
         })
         
     except Exception as e:
         error = f"Lỗi test P-box: {str(e)}"
         return templates.TemplateResponse("index.html", {
             "request": request, 
-            "error": error
+            "error": error,
+            "active_tab": "test"
         })
 
 @app.post("/test/compress", response_class=HTMLResponse)
@@ -379,14 +473,16 @@ async def test_compress(request: Request, kl: str = Form(...), kr: str = Form(..
             error = "KL0 phải là chuỗi binary 4-bit"
             return templates.TemplateResponse("index.html", {
                 "request": request, 
-                "error": error
+                "error": error,
+                "active_tab": "test"
             })
         
         if not all(c in '01' for c in kr) or len(kr) != 4:
             error = "KR0 phải là chuỗi binary 4-bit"
             return templates.TemplateResponse("index.html", {
                 "request": request, 
-                "error": error
+                "error": error,
+                "active_tab": "test"
             })
         
         # Test compress function
@@ -401,14 +497,16 @@ async def test_compress(request: Request, kl: str = Form(...), kr: str = Form(..
         
         return templates.TemplateResponse("index.html", {
             "request": request,
-            "test_result": test_result
+            "test_result": test_result,
+            "active_tab": "test"
         })
         
     except Exception as e:
         error = f"Lỗi test compress: {str(e)}"
         return templates.TemplateResponse("index.html", {
             "request": request, 
-            "error": error
+            "error": error,
+            "active_tab": "test"
         })
 
 @app.post("/test/encrypt", response_class=HTMLResponse)
@@ -420,14 +518,16 @@ async def test_encrypt(request: Request, plaintext: str = Form(...), key: str = 
             error = "Plaintext phải là chuỗi binary 8-bit"
             return templates.TemplateResponse("index.html", {
                 "request": request, 
-                "error": error
+                "error": error,
+                "active_tab": "test"
             })
         
         if not all(c in '01' for c in key) or len(key) != 8:
             error = "Key phải là chuỗi binary 8-bit"
             return templates.TemplateResponse("index.html", {
                 "request": request, 
-                "error": error
+                "error": error,
+                "active_tab": "test"
             })
         
         # Test encryption
@@ -453,14 +553,16 @@ async def test_encrypt(request: Request, plaintext: str = Form(...), key: str = 
         
         return templates.TemplateResponse("index.html", {
             "request": request,
-            "test_result": test_result
+            "test_result": test_result,
+            "active_tab": "test"
         })
         
     except Exception as e:
         error = f"Lỗi test encryption: {str(e)}"
         return templates.TemplateResponse("index.html", {
             "request": request, 
-            "error": error
+            "error": error,
+            "active_tab": "test"
         })
 
 if __name__ == "__main__":

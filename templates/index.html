@@ -9,159 +9,90 @@
 </head>
 <body>
     <div class="container">
+        <!-- Header với logo trường -->
         <header class="header">
-            <h1><i class="fas fa-shield-alt"></i> TinyDES Encryption System</h1>
-            <p class="subtitle">Thuật toán mã hóa DES thu nhỏ - 8-bit block cipher</p>
+            <div class="header-content">
+                <div class="header-logo">
+                    <img src="/static/neu-logo.jpg" alt="NEU Logo" class="neu-logo">
+                </div>
+                <div class="header-text">
+                    <h1><i class="fas fa-shield-alt"></i> TinyDES Encryption System</h1>
+                    <p class="subtitle">Thuật toán mã hóa DES thu nhỏ - 8-bit block cipher</p>
+                    <p class="university-name">Đại học Kinh tế Quốc dân (NEU)</p>
+                </div>
+            </div>
         </header>
 
         <main class="main-content">
-            <div class="info-card">
-                <h3><i class="fas fa-info-circle"></i> Thông tin về TinyDES</h3>
-                <ul>
-                    <li><strong>Block size:</strong> 8 bit (chia thành 2 phần 4-bit)</li>
-                    <li><strong>Key size:</strong> 8 bit (chia thành KL0 và KR0)</li>
-                    <li><strong>Rounds:</strong> 3 rounds Feistel cipher</li>
-                    <li><strong>Subkey size:</strong> 6 bit cho mỗi round</li>
-                </ul>
-            </div>
-
+            {% set current_tab = active_tab if active_tab is defined else 'theory' %}
+            
+            <!-- Error Message -->
             {% if error %}
-            <div class="error-message">
+            <section class="error-message">
                 <i class="fas fa-exclamation-triangle"></i> {{ error }}
-            </div>
+            </section>
             {% endif %}
 
-            {% if result %}
-            <div class="result-section">
-                <h3><i class="fas fa-check-circle"></i> 
-                    {% if result.type == 'encrypt' %}
-                        Kết quả mã hóa
-                    {% else %}
-                        Kết quả giải mã
-                    {% endif %}
-                </h3>
-                <div class="result-grid">
-                    {% if result.type == 'encrypt' %}
-                    <div class="result-item">
-                        <label>Plaintext:</label>
-                        <span>{{ result.plaintext }}</span>
-                    </div>
-                    <div class="result-item">
-                        <label>Key:</label>
-                        <span>{{ result.key }}</span>
-                    </div>
-                    <div class="result-item">
-                        <label>Ciphertext (Binary):</label>
-                        <span>{{ result.ciphertext }}</span>
-                    </div>
-                    <div class="result-item">
-                        <label>Ciphertext (Hex):</label>
-                        <span>{{ result.ciphertext_hex }}</span>
-                    </div>
-                    <div class="result-item">
-                        <label>Ciphertext (Decimal):</label>
-                        <span>{{ result.ciphertext_decimal }}</span>
-                    </div>
-                    {% else %}
-                    <div class="result-item">
-                        <label>Ciphertext:</label>
-                        <span>{{ result.ciphertext }}</span>
-                    </div>
-                    <div class="result-item">
-                        <label>Key:</label>
-                        <span>{{ result.key }}</span>
-                    </div>
-                    <div class="result-item">
-                        <label>Plaintext (Binary):</label>
-                        <span>{{ result.plaintext }}</span>
-                    </div>
-                    <div class="result-item">
-                        <label>Plaintext (Hex):</label>
-                        <span>{{ result.plaintext_hex }}</span>
-                    </div>
-                    <div class="result-item">
-                        <label>Plaintext (Decimal):</label>
-                        <span>{{ result.plaintext_decimal }}</span>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-            {% endif %}
-
-            <div class="tabs">
-                <button class="tab-button active" onclick="showTab('encrypt')">
-                    <i class="fas fa-lock"></i> Mã hóa
-                </button>
-                <button class="tab-button" onclick="showTab('decrypt')">
-                    <i class="fas fa-unlock"></i> Giải mã
-                </button>
-                <button class="tab-button" onclick="showTab('theory')">
+            <!-- Tabs Navigation -->
+            <section class="tabs-section">
+                <div class="tabs">
+                <button class="tab-button {% if current_tab == 'theory' %}active{% endif %}" onclick="showTab('theory', this)" data-tab="theory">
                     <i class="fas fa-book"></i> Lý thuyết
                 </button>
-                <button class="tab-button" onclick="showTab('test')">
+                <button class="tab-button {% if current_tab == 'encrypt' %}active{% endif %}" onclick="showTab('encrypt', this)" data-tab="encrypt">
+                    <i class="fas fa-lock"></i> Mã hóa
+                </button>
+                <button class="tab-button {% if current_tab == 'decrypt' %}active{% endif %}" onclick="showTab('decrypt', this)" data-tab="decrypt">
+                    <i class="fas fa-unlock"></i> Giải mã
+                </button>
+                <button class="tab-button {% if current_tab == 'test' %}active{% endif %}" onclick="showTab('test', this)" data-tab="test">
                     <i class="fas fa-vial"></i> Test Functions
                 </button>
-            </div>
+                <button class="tab-button {% if current_tab == 'process' %}active{% endif %}" onclick="showTab('process', this)" data-tab="process">
+                    <i class="fas fa-cogs"></i> Quy trình
+                </button>
+                </div>
+            </section>
 
-            <!-- Tab Mã hóa -->
-            <div class="tab-content active" id="encrypt-tab">
-                <form method="POST" action="/encrypt" class="encrypt-form">
-                    <div class="form-group">
-                        <label for="plaintext">
-                            <i class="fas fa-file-text"></i> Plaintext (8-bit)
-                        </label>
-                        <input type="text" id="plaintext" name="plaintext" 
-                               placeholder="Nhập plaintext (VD: 01011100, 5C, 92)"
-                               value="{{ plaintext if plaintext else '' }}">
-                        <div class="input-format">
-                            <span>Có thể nhập: Binary (01011100), Hex (5C), Decimal (92)</span>
+            <!-- Thông tin về TinyDES -->
+            <section class="info-card">
+                <h3><i class="fas fa-info-circle"></i> Thông tin về TinyDES</h3>
+                <div class="info-grid-specs">
+                    <div class="spec-item">
+                        <i class="fas fa-cube"></i>
+                        <div>
+                            <strong>Block size:</strong>
+                            <span>8 bit (chia thành 2 phần 4-bit)</span>
                         </div>
                     </div>
-
-                    <div class="form-group">
-                        <label for="key">
-                            <i class="fas fa-key"></i> Key (8-bit)
-                        </label>
-                        <input type="text" id="key" name="key" 
-                               placeholder="Nhập key (VD: 01101010, 6A, 106)"
-                               value="{{ key if key else '' }}">
+                    <div class="spec-item">
+                        <i class="fas fa-key"></i>
+                        <div>
+                            <strong>Key size:</strong>
+                            <span>8 bit (chia thành KL0 và KR0)</span>
+                        </div>
                     </div>
-
-                    <button type="submit" class="action-button encrypt-btn">
-                        <i class="fas fa-lock"></i> Mã hóa
-                    </button>
-                </form>
-            </div>
-
-            <!-- Tab Giải mã -->
-            <div class="tab-content" id="decrypt-tab">
-                <form method="POST" action="/decrypt" class="decrypt-form">
-                    <div class="form-group">
-                        <label for="ciphertext">
-                            <i class="fas fa-file-code"></i> Ciphertext (8-bit)
-                        </label>
-                        <input type="text" id="ciphertext" name="ciphertext" 
-                               placeholder="Nhập ciphertext (VD: 11001101, CD, 205)"
-                               value="{{ ciphertext if ciphertext else '' }}">
+                    <div class="spec-item">
+                        <i class="fas fa-sync-alt"></i>
+                        <div>
+                            <strong>Rounds:</strong>
+                            <span>3 rounds Feistel cipher</span>
+                        </div>
                     </div>
-
-                    <div class="form-group">
-                        <label for="key_decrypt">
-                            <i class="fas fa-key"></i> Key (8-bit)
-                        </label>
-                        <input type="text" id="key_decrypt" name="key" 
-                               placeholder="Nhập key (VD: 01101010, 6A, 106)"
-                               value="{{ key if key else '' }}">
+                    <div class="spec-item">
+                        <i class="fas fa-puzzle-piece"></i>
+                        <div>
+                            <strong>Subkey size:</strong>
+                            <span>6 bit cho mỗi round</span>
+                        </div>
                     </div>
+                </div>
+            </section>
 
-                    <button type="submit" class="action-button decrypt-btn">
-                        <i class="fas fa-unlock"></i> Giải mã
-                    </button>
-                </form>
-            </div>
-
-            <!-- Tab Lý thuyết -->
-            <div class="tab-content" id="theory-tab">
+            <!-- Tab Contents -->
+            <section class="tab-contents-wrapper">
+                <!-- Tab Lý thuyết -->
+                <div class="tab-content {% if current_tab == 'theory' %}active{% endif %}" id="theory-tab">
                 <div class="theory-section">
                     <h3><i class="fas fa-book"></i> Lý thuyết TinyDES</h3>
                     
@@ -225,10 +156,263 @@
                         </div>
                     </div>
                 </div>
-            </div>
+                </div>
 
-            <!-- Tab Test Functions -->
-            <div class="tab-content" id="test-tab">
+                <!-- Tab Mã hóa -->
+                <div class="tab-content {% if current_tab == 'encrypt' %}active{% endif %}" id="encrypt-tab">
+                <form method="POST" action="/encrypt" class="encrypt-form">
+                    <div class="form-group">
+                        <label for="plaintext">
+                            <i class="fas fa-file-text"></i> Plaintext (8-bit)
+                        </label>
+                        <input type="text" id="plaintext" name="plaintext" 
+                               placeholder="Nhập plaintext (VD: 01011100, 5C, 92)"
+                               value="{{ plaintext if plaintext else '' }}">
+                        <div class="input-format">
+                            <span>Có thể nhập: Binary (01011100), Hex (5C), Decimal (92)</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="key">
+                            <i class="fas fa-key"></i> Key (8-bit)
+                        </label>
+                        <input type="text" id="key" name="key" 
+                               placeholder="Nhập key (VD: 01101010, 6A, 106)"
+                               value="{{ key if key else '' }}">
+                    </div>
+
+                    <button type="submit" class="action-button encrypt-btn">
+                        <i class="fas fa-lock"></i> Mã hóa
+                    </button>
+                </form>
+                </div>
+
+                <!-- Tab Giải mã -->
+                <div class="tab-content {% if current_tab == 'decrypt' %}active{% endif %}" id="decrypt-tab">
+                <form method="POST" action="/decrypt" class="decrypt-form">
+                    <div class="form-group">
+                        <label for="ciphertext">
+                            <i class="fas fa-file-code"></i> Ciphertext (8-bit)
+                        </label>
+                        <input type="text" id="ciphertext" name="ciphertext" 
+                               placeholder="Nhập ciphertext (VD: 11001101, CD, 205)"
+                               value="{{ ciphertext if ciphertext else '' }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="key_decrypt">
+                            <i class="fas fa-key"></i> Key (8-bit)
+                        </label>
+                        <input type="text" id="key_decrypt" name="key" 
+                               placeholder="Nhập key (VD: 01101010, 6A, 106)"
+                               value="{{ key if key else '' }}">
+                    </div>
+
+                    <button type="submit" class="action-button decrypt-btn">
+                        <i class="fas fa-unlock"></i> Giải mã
+                    </button>
+                </form>
+                </div>
+
+                <!-- Tab Quy trình -->
+                <div class="tab-content {% if current_tab == 'process' %}active{% endif %}" id="process-tab">
+                <div class="process-section">
+                    <h3><i class="fas fa-cogs"></i> Quy trình Mã hóa/Giải mã Chi tiết</h3>
+                    <p class="process-description">Nhập dữ liệu và key để xem đầy đủ quy trình mã hóa/giải mã TinyDES từng bước</p>
+                    
+                    <form method="POST" action="/process" class="process-form">
+                        <div class="process-type-selection">
+                            <label class="process-type-label">
+                                <input type="radio" name="process_type" value="encrypt" checked>
+                                <span><i class="fas fa-lock"></i> Mã hóa</span>
+                            </label>
+                            <label class="process-type-label">
+                                <input type="radio" name="process_type" value="decrypt">
+                                <span><i class="fas fa-unlock"></i> Giải mã</span>
+                            </label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="process_input">
+                                <i class="fas fa-file-text"></i> 
+                                <span id="input-label">Plaintext (8-bit)</span>
+                            </label>
+                            <input type="text" id="process_input" name="plaintext" 
+                                   placeholder="Nhập plaintext (VD: 01011100, 5C, 92)"
+                                   value="{{ plaintext if plaintext else '' }}">
+                            <div class="input-format">
+                                <span id="input-format-text">Có thể nhập: Binary (01011100), Hex (5C), Decimal (92)</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="process_key">
+                                <i class="fas fa-key"></i> Key (8-bit)
+                            </label>
+                            <input type="text" id="process_key" name="key" 
+                                   placeholder="Nhập key (VD: 01101010, 6A, 106)"
+                                   value="{{ key if key else '' }}">
+                        </div>
+
+                        <button type="submit" class="action-button process-btn">
+                            <i class="fas fa-play"></i> Xem Quy trình
+                        </button>
+                    </form>
+                    
+                    {% if process_details %}
+                    <div class="process-details" id="process-details-section">
+                        <div class="process-summary">
+                            <h4><i class="fas fa-info-circle"></i> Thông tin đầu vào</h4>
+                            <div class="summary-grid">
+                                <div class="summary-item">
+                                    <strong>{% if process_details.type == 'encrypt' %}Plaintext{% else %}Ciphertext{% endif %}:</strong>
+                                    <span>{{ process_details.plaintext if process_details.type == 'encrypt' else process_details.ciphertext }} (Binary)</span>
+                                    <span>{{ process_details.plaintext_hex if process_details.type == 'encrypt' else process_details.ciphertext_hex }} (Hex)</span>
+                                    <span>{{ process_details.plaintext_decimal if process_details.type == 'encrypt' else process_details.ciphertext_decimal }} (Decimal)</span>
+                                </div>
+                                <div class="summary-item">
+                                    <strong>Key:</strong>
+                                    <span>{{ process_details.key }} (Binary)</span>
+                                    <span>{{ process_details.key_hex }} (Hex)</span>
+                                    <span>{{ process_details.key_decimal }} (Decimal)</span>
+                                </div>
+                                <div class="summary-item">
+                                    <strong>Chia khóa:</strong>
+                                    <span>KL0 = {{ process_details.kl0 }}</span>
+                                    <span>KR0 = {{ process_details.kr0 }}</span>
+                                </div>
+                                <div class="summary-item">
+                                    <strong>Chia {% if process_details.type == 'encrypt' %}plaintext{% else %}ciphertext{% endif %}:</strong>
+                                    <span>L0 = {{ process_details.initial_left }}</span>
+                                    <span>R0 = {{ process_details.initial_right }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="process-subkeys">
+                            <h4><i class="fas fa-key"></i> Sinh khóa con (Subkeys)</h4>
+                            <div class="subkeys-grid">
+                                {% for subkey_detail in process_details.subkey_details %}
+                                <div class="subkey-card">
+                                    <h5>Round {{ subkey_detail.round }}</h5>
+                                    <div class="subkey-steps">
+                                        <div class="step-item">
+                                            <label>KL{{ subkey_detail.round - 1 }}:</label>
+                                            <span>{{ subkey_detail.kl }}</span>
+                                        </div>
+                                        <div class="step-item">
+                                            <label>KR{{ subkey_detail.round - 1 }}:</label>
+                                            <span>{{ subkey_detail.kr }}</span>
+                                        </div>
+                                        <div class="step-item">
+                                            <label>Shift {{ subkey_detail.shift_amount }} bit:</label>
+                                            <span>KL{{ subkey_detail.round - 1 }} → {{ subkey_detail.kl_shifted }}</span>
+                                            <span>KR{{ subkey_detail.round - 1 }} → {{ subkey_detail.kr_shifted }}</span>
+                                        </div>
+                                        <div class="step-item">
+                                            <label>K{{ subkey_detail.round }}:</label>
+                                            <span class="subkey-value">{{ subkey_detail.subkey }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="process-rounds">
+                            <h4><i class="fas fa-sync-alt"></i> Các vòng Feistel</h4>
+                            {% for round in process_details.rounds %}
+                            <div class="round-card">
+                                <h5><i class="fas fa-circle"></i> Round {{ round.round }}</h5>
+                                <div class="round-content">
+                                    <div class="round-input">
+                                        <h6>Input:</h6>
+                                        <div class="input-output">
+                                            <span>L{{ round.round - 1 }} = {{ round.input_left }}</span>
+                                            <span>R{{ round.round - 1 }} = {{ round.input_right }}</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="round-steps">
+                                        <div class="step-card">
+                                            <h6><i class="fas fa-expand-arrows-alt"></i> 1. Expansion</h6>
+                                            <p>R{{ round.round - 1 }} (4-bit) → {{ round.expansion }} (6-bit)</p>
+                                        </div>
+
+                                        <div class="step-card">
+                                            <h6><i class="fas fa-xor"></i> 2. XOR với khóa con</h6>
+                                            <p>{{ round.expansion }} XOR K{{ round.round }} ({{ round.subkey }}) = {{ round.xor_with_key }}</p>
+                                        </div>
+
+                                        <div class="step-card">
+                                            <h6><i class="fas fa-table"></i> 3. S-box Lookup</h6>
+                                            <p>Input: {{ round.sbox_input }} (6-bit)</p>
+                                            <p>Row: {{ round.sbox_row }} (bits {{ round.sbox_input[0] }}{{ round.sbox_input[5] }})</p>
+                                            <p>Column: {{ round.sbox_col }} (bits {{ round.sbox_input[1] }}{{ round.sbox_input[2] }}{{ round.sbox_input[3] }}{{ round.sbox_input[4] }})</p>
+                                            <p>S-box[{{ round.sbox_row }}][{{ round.sbox_col }}] = {{ round.sbox_value }} (Decimal) = {{ round.sbox_value|hex }} (Hex)</p>
+                                            <p>Output: {{ round.sbox_output }} (4-bit)</p>
+                                        </div>
+
+                                        <div class="step-card">
+                                            <h6><i class="fas fa-random"></i> 4. P-box Permutation</h6>
+                                            <p>{{ round.sbox_output }} → {{ round.pbox_output }}</p>
+                                        </div>
+
+                                        <div class="step-card">
+                                            <h6><i class="fas fa-equals"></i> 5. F(R, K) = {{ round.f_result }}</h6>
+                                        </div>
+
+                                        <div class="step-card">
+                                            <h6><i class="fas fa-xor"></i> 6. XOR với L{{ round.round - 1 }}</h6>
+                                            <p>L{{ round.round - 1 }} ({{ round.input_left }}) XOR F(R{{ round.round - 1 }}, K{{ round.round }}) ({{ round.f_result }})</p>
+                                            <p>= {{ round.input_left }} XOR {{ round.f_result }} = {{ round.new_right }}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="round-output">
+                                        <h6>Output:</h6>
+                                        <div class="input-output">
+                                            <span>L{{ round.round }} = {{ round.output_left }}</span>
+                                            <span>R{{ round.round }} = {{ round.output_right }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="process-result">
+                            <h4><i class="fas fa-check-circle"></i> Kết quả cuối cùng</h4>
+                            <div class="result-card">
+                                <div class="result-final">
+                                    <div class="result-item">
+                                        <label>{% if process_details.type == 'encrypt' %}Ciphertext{% else %}Plaintext{% endif %} (Binary):</label>
+                                        <span class="result-value">{{ process_details.ciphertext if process_details.type == 'encrypt' else process_details.plaintext }}</span>
+                                    </div>
+                                    <div class="result-item">
+                                        <label>{% if process_details.type == 'encrypt' %}Ciphertext{% else %}Plaintext{% endif %} (Hex):</label>
+                                        <span class="result-value">{{ process_details.ciphertext_hex if process_details.type == 'encrypt' else process_details.plaintext_hex }}</span>
+                                    </div>
+                                    <div class="result-item">
+                                        <label>{% if process_details.type == 'encrypt' %}Ciphertext{% else %}Plaintext{% endif %} (Decimal):</label>
+                                        <span class="result-value">{{ process_details.ciphertext_decimal if process_details.type == 'encrypt' else process_details.plaintext_decimal }}</span>
+                                    </div>
+                                    <div class="result-item">
+                                        <label>Kết hợp:</label>
+                                        <span class="result-value">L3 = {{ process_details.final_left }}, R3 = {{ process_details.final_right }}</span>
+                                        <span class="result-value">→ {{ process_details.final_left }}{{ process_details.final_right }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                </div>
+
+                <!-- Tab Test Functions -->
+                <div class="tab-content {% if current_tab == 'test' %}active{% endif %}" id="test-tab">
                 <div class="test-section">
                     <h3><i class="fas fa-vial"></i> Test Functions</h3>
                     <p class="test-description">Kiểm tra từng hàm riêng lẻ của TinyDES để hiểu rõ cách hoạt động</p>
@@ -352,13 +536,73 @@
                         </div>
                     </div>
                 </div>
-            </div>
+                </div>
+            </section>
 
-            <div class="info-section">
-                <h3><i class="fas fa-info-circle"></i> Hướng dẫn sử dụng</h3>
+            <!-- Result Section -->
+            {% if result %}
+            <section class="result-section" id="result-section">
+                <h3><i class="fas fa-check-circle"></i> 
+                    {% if result.type == 'encrypt' %}
+                        Kết quả mã hóa
+                    {% else %}
+                        Kết quả giải mã
+                    {% endif %}
+                </h3>
+                <div class="result-grid">
+                    {% if result.type == 'encrypt' %}
+                    <div class="result-item">
+                        <label><i class="fas fa-file-text"></i> Plaintext:</label>
+                        <span>{{ result.plaintext }}</span>
+                    </div>
+                    <div class="result-item">
+                        <label><i class="fas fa-key"></i> Key:</label>
+                        <span>{{ result.key }}</span>
+                    </div>
+                    <div class="result-item">
+                        <label><i class="fas fa-code"></i> Ciphertext (Binary):</label>
+                        <span>{{ result.ciphertext }}</span>
+                    </div>
+                    <div class="result-item">
+                        <label><i class="fas fa-hashtag"></i> Ciphertext (Hex):</label>
+                        <span>{{ result.ciphertext_hex }}</span>
+                    </div>
+                    <div class="result-item">
+                        <label><i class="fas fa-sort-numeric-up"></i> Ciphertext (Decimal):</label>
+                        <span>{{ result.ciphertext_decimal }}</span>
+                    </div>
+                    {% else %}
+                    <div class="result-item">
+                        <label><i class="fas fa-file-code"></i> Ciphertext:</label>
+                        <span>{{ result.ciphertext }}</span>
+                    </div>
+                    <div class="result-item">
+                        <label><i class="fas fa-key"></i> Key:</label>
+                        <span>{{ result.key }}</span>
+                    </div>
+                    <div class="result-item">
+                        <label><i class="fas fa-file-text"></i> Plaintext (Binary):</label>
+                        <span>{{ result.plaintext }}</span>
+                    </div>
+                    <div class="result-item">
+                        <label><i class="fas fa-hashtag"></i> Plaintext (Hex):</label>
+                        <span>{{ result.plaintext_hex }}</span>
+                    </div>
+                    <div class="result-item">
+                        <label><i class="fas fa-sort-numeric-up"></i> Plaintext (Decimal):</label>
+                        <span>{{ result.plaintext_decimal }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </section>
+            {% endif %}
+
+            <!-- Hướng dẫn sử dụng -->
+            <section class="info-section">
+                <h3><i class="fas fa-question-circle"></i> Hướng dẫn sử dụng</h3>
                 <div class="info-grid">
                     <div class="info-item">
-                        <h4>Định dạng input</h4>
+                        <h4><i class="fas fa-file-alt"></i> Định dạng input</h4>
                         <ul>
                             <li><strong>Binary:</strong> 01011100 (8 bit)</li>
                             <li><strong>Hex:</strong> 5C hoặc 0x5C</li>
@@ -366,7 +610,7 @@
                         </ul>
                     </div>
                     <div class="info-item">
-                        <h4>Ví dụ</h4>
+                        <h4><i class="fas fa-lightbulb"></i> Ví dụ</h4>
                         <ul>
                             <li><strong>Plaintext:</strong> 01011100</li>
                             <li><strong>Key:</strong> 01101010</li>
@@ -374,17 +618,22 @@
                         </ul>
                     </div>
                 </div>
-            </div>
+            </section>
         </main>
 
+        <!-- Footer -->
         <footer class="footer">
-            <p>&copy; 2024 TinyDES Encryption System - Thuật toán mã hóa DES thu nhỏ</p>
+            <div class="footer-content">
+                <p><i class="fas fa-shield-alt"></i> TinyDES Encryption System</p>
+                <p>Thuật toán mã hóa DES thu nhỏ - Đại học Kinh tế Quốc dân (NEU)</p>
+                <p>&copy; 2024 - Tất cả các quyền được bảo lưu</p>
+            </div>
         </footer>
     </div>
 
     <script>
-        // Tab functionality
-        function showTab(tabName) {
+        // Tab functionality - chỉ dùng khi user click vào tab
+        function showTab(tabName, buttonElement) {
             // Hide all tab contents
             const tabContents = document.querySelectorAll('.tab-content');
             tabContents.forEach(content => content.classList.remove('active'));
@@ -394,11 +643,71 @@
             tabButtons.forEach(button => button.classList.remove('active'));
             
             // Show selected tab content
-            document.getElementById(tabName + '-tab').classList.add('active');
+            const targetTab = document.getElementById(tabName + '-tab');
+            if (targetTab) {
+                targetTab.classList.add('active');
+            }
             
             // Add active class to clicked button
-            event.target.classList.add('active');
+            if (buttonElement) {
+                buttonElement.classList.add('active');
+            } else {
+                // Fallback: find button by data-tab attribute
+                const button = document.querySelector(`button[data-tab="${tabName}"]`);
+                if (button) {
+                    button.classList.add('active');
+                }
+            }
         }
+
+        // Auto scroll to result section when page loads with result
+        // Process type selection handler
+        document.addEventListener('DOMContentLoaded', function() {
+            const processTypeRadios = document.querySelectorAll('input[name="process_type"]');
+            const inputLabel = document.getElementById('input-label');
+            const inputField = document.getElementById('process_input');
+            const inputFormatText = document.getElementById('input-format-text');
+            
+            if (processTypeRadios.length > 0) {
+                processTypeRadios.forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        if (this.value === 'encrypt') {
+                            inputLabel.textContent = 'Plaintext (8-bit)';
+                            inputField.placeholder = 'Nhập plaintext (VD: 01011100, 5C, 92)';
+                            inputFormatText.textContent = 'Có thể nhập: Binary (01011100), Hex (5C), Decimal (92)';
+                        } else {
+                            inputLabel.textContent = 'Ciphertext (8-bit)';
+                            inputField.placeholder = 'Nhập ciphertext (VD: 01011100, 5C, 92)';
+                            inputFormatText.textContent = 'Có thể nhập: Binary (01011100), Hex (5C), Decimal (92)';
+                        }
+                    });
+                });
+            }
+            
+            // Check if result section exists (meaning form was submitted and result is shown)
+            const resultSection = document.getElementById('result-section');
+            if (resultSection) {
+                // Wait for page to fully render and tab to be set active
+                setTimeout(function() {
+                    // Smooth scroll to result section (CSS scroll-margin-top handles offset)
+                    resultSection.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'center',
+                        inline: 'nearest'
+                    });
+                    
+                    // Add a subtle highlight animation to draw attention
+                    resultSection.style.boxShadow = '0 10px 40px rgba(255, 193, 7, 0.6)';
+                    resultSection.style.transform = 'scale(1.02)';
+                    
+                    // Remove highlight after animation
+                    setTimeout(function() {
+                        resultSection.style.boxShadow = '';
+                        resultSection.style.transform = '';
+                    }, 2000);
+                }, 500); // Wait for tab to be set active
+            }
+        });
     </script>
 </body>
 </html>
