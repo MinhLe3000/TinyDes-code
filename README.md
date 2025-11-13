@@ -4,6 +4,12 @@
 
 Ứng dụng web đơn giản cho thuật toán mã hóa TinyDES sử dụng FastAPI + HTML thuần. Không cần JavaScript phức tạp!
 
+## 🌐 Truy cập trực tuyến
+
+Nếu muốn xem hệ thống, bạn có thể truy cập trực tuyến tại: **[https://tinydes.onrender.com/](https://tinydes.onrender.com/)**
+
+Hệ thống đã được triển khai trên Render, bạn có thể sử dụng ngay mà không cần cài đặt hay chạy local.
+
 ## Kiến trúc hệ thống
 
 ### 🎯 **Frontend vs Backend**
