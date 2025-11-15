@@ -3,96 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TinyDES Encryption System</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <title>Hệ thống Mã hóa TinyDES - NEU</title>
+    <link rel="stylesheet" href="/static/style.css?v=2.0">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <!-- Header với logo trường -->
+    <div class="app-container">
+        <!-- Yellow Top Strip -->
+        <div class="top-yellow-strip"></div>
+        
+        <!-- Header -->
         <header class="header">
-            <div class="header-content">
-                <div class="header-logo">
-                    <img src="/static/neu-logo.jpg" alt="NEU Logo" class="neu-logo">
+            <div class="header-left">
+                <img src="/static/neu-logo.jpg" alt="NEU Logo" class="header-logo">
+                <div class="header-university">
+                    <h2>ĐẠI HỌC KINH TẾ QUỐC DÂN</h2>
                 </div>
-                <div class="header-text">
-                    <h1><i class="fas fa-shield-alt"></i> TinyDES Encryption System</h1>
-                    <p class="subtitle">Thuật toán mã hóa DES thu nhỏ - 8-bit block cipher</p>
-                    <p class="university-name">Đại học Kinh tế Quốc dân (NEU)</p>
+            </div>
+            <div class="header-center">
+                <h1 class="system-title">
+                    <i class="fas fa-shield-alt"></i>
+                    HỆ THỐNG MÃ HÓA TINYDES
+                </h1>
+            </div>
+            <div class="header-right">
+                <div class="header-info">
+                    <span class="faculty-name">
+                        <i class="fas fa-university"></i> Khoa CNTT
+                    </span>
+                    <span class="notification-icon">
+                        <i class="fas fa-bell"></i>
+                    </span>
                 </div>
             </div>
         </header>
 
-        <main class="main-content">
-            {% set current_tab = active_tab if active_tab is defined else 'theory' %}
-            
-            <!-- Error Message -->
-            {% if error %}
-            <section class="error-message">
-                <i class="fas fa-exclamation-triangle"></i> {{ error }}
-            </section>
-            {% endif %}
+        <div class="main-layout">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="profile-section">
+                    <div class="profile-avatar">
+                        <img src="/static/robotava.jpg" alt="Profile" class="avatar-img">
+                    </div>
+                    <div class="profile-info">
+                        <h3 class="profile-name">Hệ thống TinyDES</h3>
+                        <p class="profile-id">Mã hệ thống: TD001</p>
+                        <p class="profile-role">
+                            <i class="fas fa-code"></i> Hệ mã hóa khối
+                        </p>
+                    </div>
+                        </div>
 
-            <!-- Tabs Navigation -->
-            <section class="tabs-section">
-                <div class="tabs">
-                <button class="tab-button {% if current_tab == 'theory' %}active{% endif %}" onclick="showTab('theory', this)" data-tab="theory">
-                    <i class="fas fa-book"></i> Lý thuyết
-                </button>
-                <button class="tab-button {% if current_tab == 'encrypt' %}active{% endif %}" onclick="showTab('encrypt', this)" data-tab="encrypt">
-                    <i class="fas fa-lock"></i> Mã hóa
-                </button>
-                <button class="tab-button {% if current_tab == 'decrypt' %}active{% endif %}" onclick="showTab('decrypt', this)" data-tab="decrypt">
-                    <i class="fas fa-unlock"></i> Giải mã
-                </button>
-                <button class="tab-button {% if current_tab == 'test' %}active{% endif %}" onclick="showTab('test', this)" data-tab="test">
-                    <i class="fas fa-vial"></i> Test Functions
-                </button>
-                <button class="tab-button {% if current_tab == 'process' %}active{% endif %}" onclick="showTab('process', this)" data-tab="process">
-                    <i class="fas fa-cogs"></i> Quy trình
-                </button>
-                </div>
-            </section>
+                <nav class="sidebar-nav">
+                    <h4 class="nav-title">QUẢN LÝ MÃ HÓA</h4>
+                    <ul class="nav-menu">
+                        <li class="nav-item">
+                            <a href="#" onclick="showTab('theory', this); return false;" 
+                               class="nav-link {% if active_tab == 'theory' or not active_tab %}active{% endif %}" 
+                               data-tab="theory">
+                                <i class="fas fa-exclamation-triangle nav-icon"></i>
+                                <span>Lý thuyết</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" onclick="showTab('encrypt', this); return false;" 
+                               class="nav-link {% if active_tab == 'encrypt' %}active{% endif %}" 
+                               data-tab="encrypt">
+                                <i class="fas fa-file-alt nav-icon"></i>
+                                <span>Mã hóa</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" onclick="showTab('decrypt', this); return false;" 
+                               class="nav-link {% if active_tab == 'decrypt' %}active{% endif %}" 
+                               data-tab="decrypt">
+                                <i class="fas fa-chart-bar nav-icon"></i>
+                                <span>Giải mã</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" onclick="showTab('process', this); return false;" 
+                               class="nav-link {% if active_tab == 'process' %}active{% endif %}" 
+                               data-tab="process">
+                                <i class="fas fa-comments nav-icon"></i>
+                                <span>Quy trình</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" onclick="showTab('test', this); return false;" 
+                               class="nav-link {% if active_tab == 'test' %}active{% endif %}" 
+                               data-tab="test">
+                                <i class="fas fa-robot nav-icon"></i>
+                                <span>Test Functions</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </aside>
 
-            <!-- Thông tin về TinyDES -->
-            <section class="info-card">
-                <h3><i class="fas fa-info-circle"></i> Thông tin về TinyDES</h3>
-                <div class="info-grid-specs">
-                    <div class="spec-item">
-                        <i class="fas fa-cube"></i>
-                        <div>
-                            <strong>Block size:</strong>
-                            <span>8 bit (chia thành 2 phần 4-bit)</span>
-                        </div>
-                    </div>
-                    <div class="spec-item">
-                        <i class="fas fa-key"></i>
-                        <div>
-                            <strong>Key size:</strong>
-                            <span>8 bit (chia thành KL0 và KR0)</span>
-                        </div>
-                    </div>
-                    <div class="spec-item">
-                        <i class="fas fa-sync-alt"></i>
-                        <div>
-                            <strong>Rounds:</strong>
-                            <span>3 rounds Feistel cipher</span>
-                        </div>
-                    </div>
-                    <div class="spec-item">
-                        <i class="fas fa-puzzle-piece"></i>
-                        <div>
-                            <strong>Subkey size:</strong>
-                            <span>6 bit cho mỗi round</span>
-                        </div>
+            <!-- Main Content -->
+            <main class="content-area">
+                <div class="content-header">
+                    <h2 class="content-title">Tiện ích mã hóa TinyDES</h2>
+                    <div class="content-tabs">
+                        <button class="content-tab {% if active_tab == 'theory' or not active_tab %}active{% endif %}" 
+                                onclick="showTab('theory', this)" data-tab="theory">
+                            <i class="fas fa-exclamation-triangle"></i> Lý thuyết
+                        </button>
+                        <button class="content-tab {% if active_tab == 'encrypt' %}active{% endif %}" 
+                                onclick="showTab('encrypt', this)" data-tab="encrypt">
+                            <i class="fas fa-file-alt"></i> Mã hóa
+                        </button>
+                        <button class="content-tab {% if active_tab == 'decrypt' %}active{% endif %}" 
+                                onclick="showTab('decrypt', this)" data-tab="decrypt">
+                            <i class="fas fa-chart-bar"></i> Giải mã
+                        </button>
+                        <button class="content-tab {% if active_tab == 'process' %}active{% endif %}" 
+                                onclick="showTab('process', this)" data-tab="process">
+                            <i class="fas fa-comments"></i> Quy trình
+                        </button>
+                        <button class="content-tab {% if active_tab == 'test' %}active{% endif %}" 
+                                onclick="showTab('test', this)" data-tab="test">
+                            <i class="fas fa-robot"></i> Test Functions
+                        </button>
                     </div>
                 </div>
-            </section>
+
+                <!-- Error Message -->
+                {% if error %}
+                <div class="error-message">
+                    <i class="fas fa-exclamation-triangle"></i> {{ error }}
+                </div>
+                {% endif %}
 
             <!-- Tab Contents -->
-            <section class="tab-contents-wrapper">
+                <div class="tab-content-wrapper">
                 <!-- Tab Lý thuyết -->
-                <div class="tab-content {% if current_tab == 'theory' %}active{% endif %}" id="theory-tab">
+                    <div class="tab-content {% if active_tab == 'theory' or not active_tab %}active{% endif %}" id="theory-tab">
                 <div class="theory-section">
                     <h3><i class="fas fa-book"></i> Lý thuyết TinyDES</h3>
                     
@@ -159,7 +206,7 @@
                 </div>
 
                 <!-- Tab Mã hóa -->
-                <div class="tab-content {% if current_tab == 'encrypt' %}active{% endif %}" id="encrypt-tab">
+                    <div class="tab-content {% if active_tab == 'encrypt' %}active{% endif %}" id="encrypt-tab">
                 <form method="POST" action="/encrypt" class="encrypt-form">
                     <div class="form-group">
                         <label for="plaintext">
@@ -186,10 +233,40 @@
                         <i class="fas fa-lock"></i> Mã hóa
                     </button>
                 </form>
+                
+                <!-- Result Section for Encryption -->
+                {% if result and result.type == 'encrypt' %}
+                <div class="result-section" id="result-section">
+                    <h3><i class="fas fa-check-circle"></i> Kết quả mã hóa</h3>
+                    <div class="result-grid">
+                        <div class="result-item">
+                            <label><i class="fas fa-file-text"></i> Plaintext:</label>
+                            <span>{{ result.plaintext }}</span>
+                        </div>
+                        <div class="result-item">
+                            <label><i class="fas fa-key"></i> Key:</label>
+                            <span>{{ result.key }}</span>
+                        </div>
+                        <div class="result-item">
+                            <label><i class="fas fa-code"></i> Ciphertext (Binary):</label>
+                            <span>{{ result.ciphertext }}</span>
+                        </div>
+                        <div class="result-item">
+                            <label><i class="fas fa-hashtag"></i> Ciphertext (Hex):</label>
+                            <span>{{ result.ciphertext_hex }}</span>
+                        </div>
+                        <div class="result-item">
+                            <label><i class="fas fa-sort-numeric-up"></i> Ciphertext (Decimal):</label>
+                            <span>{{ result.ciphertext_decimal }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
                 </div>
 
                 <!-- Tab Giải mã -->
-                <div class="tab-content {% if current_tab == 'decrypt' %}active{% endif %}" id="decrypt-tab">
+                    <div class="tab-content {% if active_tab == 'decrypt' %}active{% endif %}" id="decrypt-tab">
                 <form method="POST" action="/decrypt" class="decrypt-form">
                     <div class="form-group">
                         <label for="ciphertext">
@@ -213,10 +290,40 @@
                         <i class="fas fa-unlock"></i> Giải mã
                     </button>
                 </form>
+                
+                <!-- Result Section for Decryption -->
+                {% if result and result.type == 'decrypt' %}
+                <div class="result-section" id="result-section">
+                    <h3><i class="fas fa-check-circle"></i> Kết quả giải mã</h3>
+                    <div class="result-grid">
+                        <div class="result-item">
+                            <label><i class="fas fa-file-code"></i> Ciphertext:</label>
+                            <span>{{ result.ciphertext }}</span>
+                        </div>
+                        <div class="result-item">
+                            <label><i class="fas fa-key"></i> Key:</label>
+                            <span>{{ result.key }}</span>
+                        </div>
+                        <div class="result-item">
+                            <label><i class="fas fa-file-text"></i> Plaintext (Binary):</label>
+                            <span>{{ result.plaintext }}</span>
+                        </div>
+                        <div class="result-item">
+                            <label><i class="fas fa-hashtag"></i> Plaintext (Hex):</label>
+                            <span>{{ result.plaintext_hex }}</span>
+                        </div>
+                        <div class="result-item">
+                            <label><i class="fas fa-sort-numeric-up"></i> Plaintext (Decimal):</label>
+                            <span>{{ result.plaintext_decimal }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
                 </div>
 
                 <!-- Tab Quy trình -->
-                <div class="tab-content {% if current_tab == 'process' %}active{% endif %}" id="process-tab">
+                    <div class="tab-content {% if active_tab == 'process' %}active{% endif %}" id="process-tab">
                 <div class="process-section">
                     <h3><i class="fas fa-cogs"></i> Quy trình Mã hóa/Giải mã Chi tiết</h3>
                     <p class="process-description">Nhập dữ liệu và key để xem đầy đủ quy trình mã hóa/giải mã TinyDES từng bước</p>
@@ -224,11 +331,11 @@
                     <form method="POST" action="/process" class="process-form">
                         <div class="process-type-selection">
                             <label class="process-type-label">
-                                <input type="radio" name="process_type" value="encrypt" checked>
+                                <input type="radio" name="process_type" value="encrypt" id="process_type_encrypt" {% if process_type != 'decrypt' %}checked{% endif %}>
                                 <span><i class="fas fa-lock"></i> Mã hóa</span>
                             </label>
                             <label class="process-type-label">
-                                <input type="radio" name="process_type" value="decrypt">
+                                <input type="radio" name="process_type" value="decrypt" id="process_type_decrypt" {% if process_type == 'decrypt' %}checked{% endif %}>
                                 <span><i class="fas fa-unlock"></i> Giải mã</span>
                             </label>
                         </div>
@@ -236,10 +343,10 @@
                         <div class="form-group">
                             <label for="process_input">
                                 <i class="fas fa-file-text"></i> 
-                                <span id="input-label">Plaintext (8-bit)</span>
+                                <span id="input-label">{% if process_type == 'decrypt' %}Ciphertext (8-bit){% else %}Plaintext (8-bit){% endif %}</span>
                             </label>
                             <input type="text" id="process_input" name="plaintext" 
-                                   placeholder="Nhập plaintext (VD: 01011100, 5C, 92)"
+                                   placeholder="{% if process_type == 'decrypt' %}Nhập ciphertext (VD: 11001101, CD, 205){% else %}Nhập plaintext (VD: 01011100, 5C, 92){% endif %}"
                                    value="{{ plaintext if plaintext else '' }}">
                             <div class="input-format">
                                 <span id="input-format-text">Có thể nhập: Binary (01011100), Hex (5C), Decimal (92)</span>
@@ -260,6 +367,7 @@
                         </button>
                     </form>
                     
+                    <!-- Process Details Section -->
                     {% if process_details %}
                     <div class="process-details" id="process-details-section">
                         <div class="process-summary">
@@ -412,7 +520,7 @@
                 </div>
 
                 <!-- Tab Test Functions -->
-                <div class="tab-content {% if current_tab == 'test' %}active{% endif %}" id="test-tab">
+                    <div class="tab-content {% if active_tab == 'test' %}active{% endif %}" id="test-tab">
                 <div class="test-section">
                     <h3><i class="fas fa-vial"></i> Test Functions</h3>
                     <p class="test-description">Kiểm tra từng hàm riêng lẻ của TinyDES để hiểu rõ cách hoạt động</p>
@@ -537,108 +645,19 @@
                     </div>
                 </div>
                 </div>
-            </section>
-
-            <!-- Result Section -->
-            {% if result %}
-            <section class="result-section" id="result-section">
-                <h3><i class="fas fa-check-circle"></i> 
-                    {% if result.type == 'encrypt' %}
-                        Kết quả mã hóa
-                    {% else %}
-                        Kết quả giải mã
-                    {% endif %}
-                </h3>
-                <div class="result-grid">
-                    {% if result.type == 'encrypt' %}
-                    <div class="result-item">
-                        <label><i class="fas fa-file-text"></i> Plaintext:</label>
-                        <span>{{ result.plaintext }}</span>
-                    </div>
-                    <div class="result-item">
-                        <label><i class="fas fa-key"></i> Key:</label>
-                        <span>{{ result.key }}</span>
-                    </div>
-                    <div class="result-item">
-                        <label><i class="fas fa-code"></i> Ciphertext (Binary):</label>
-                        <span>{{ result.ciphertext }}</span>
-                    </div>
-                    <div class="result-item">
-                        <label><i class="fas fa-hashtag"></i> Ciphertext (Hex):</label>
-                        <span>{{ result.ciphertext_hex }}</span>
-                    </div>
-                    <div class="result-item">
-                        <label><i class="fas fa-sort-numeric-up"></i> Ciphertext (Decimal):</label>
-                        <span>{{ result.ciphertext_decimal }}</span>
-                    </div>
-                    {% else %}
-                    <div class="result-item">
-                        <label><i class="fas fa-file-code"></i> Ciphertext:</label>
-                        <span>{{ result.ciphertext }}</span>
-                    </div>
-                    <div class="result-item">
-                        <label><i class="fas fa-key"></i> Key:</label>
-                        <span>{{ result.key }}</span>
-                    </div>
-                    <div class="result-item">
-                        <label><i class="fas fa-file-text"></i> Plaintext (Binary):</label>
-                        <span>{{ result.plaintext }}</span>
-                    </div>
-                    <div class="result-item">
-                        <label><i class="fas fa-hashtag"></i> Plaintext (Hex):</label>
-                        <span>{{ result.plaintext_hex }}</span>
-                    </div>
-                    <div class="result-item">
-                        <label><i class="fas fa-sort-numeric-up"></i> Plaintext (Decimal):</label>
-                        <span>{{ result.plaintext_decimal }}</span>
-                    </div>
-                    {% endif %}
-                </div>
-            </section>
-            {% endif %}
-
-            <!-- Hướng dẫn sử dụng -->
-            <section class="info-section">
-                <h3><i class="fas fa-question-circle"></i> Hướng dẫn sử dụng</h3>
-                <div class="info-grid">
-                    <div class="info-item">
-                        <h4><i class="fas fa-file-alt"></i> Định dạng input</h4>
-                        <ul>
-                            <li><strong>Binary:</strong> 01011100 (8 bit)</li>
-                            <li><strong>Hex:</strong> 5C hoặc 0x5C</li>
-                            <li><strong>Decimal:</strong> 92</li>
-                        </ul>
-                    </div>
-                    <div class="info-item">
-                        <h4><i class="fas fa-lightbulb"></i> Ví dụ</h4>
-                        <ul>
-                            <li><strong>Plaintext:</strong> 01011100</li>
-                            <li><strong>Key:</strong> 01101010</li>
-                            <li><strong>Kết quả:</strong> Sẽ được tính toán</li>
-                        </ul>
-                    </div>
-                </div>
-            </section>
-        </main>
-
-        <!-- Footer -->
-        <footer class="footer">
-            <div class="footer-content">
-                <p><i class="fas fa-shield-alt"></i> TinyDES Encryption System</p>
-                <p>Thuật toán mã hóa DES thu nhỏ - Đại học Kinh tế Quốc dân (NEU)</p>
-            </div>
-        </footer>
+            </main>
+        </div>
     </div>
 
     <script>
-        // Tab functionality - chỉ dùng khi user click vào tab
-        function showTab(tabName, buttonElement) {
+        // Tab functionality
+        function showTab(tabName, element) {
             // Hide all tab contents
             const tabContents = document.querySelectorAll('.tab-content');
             tabContents.forEach(content => content.classList.remove('active'));
             
-            // Remove active class from all buttons
-            const tabButtons = document.querySelectorAll('.tab-button');
+            // Remove active class from all buttons and links
+            const tabButtons = document.querySelectorAll('.content-tab, .nav-link');
             tabButtons.forEach(button => button.classList.remove('active'));
             
             // Show selected tab content
@@ -647,25 +666,48 @@
                 targetTab.classList.add('active');
             }
             
-            // Add active class to clicked button
-            if (buttonElement) {
-                buttonElement.classList.add('active');
-            } else {
-                // Fallback: find button by data-tab attribute
-                const button = document.querySelector(`button[data-tab="${tabName}"]`);
-                if (button) {
-                    button.classList.add('active');
-                }
+            // Add active class to clicked element
+            if (element) {
+                element.classList.add('active');
             }
         }
 
-        // Auto scroll to result section when page loads with result
         // Process type selection handler
         document.addEventListener('DOMContentLoaded', function() {
+            // First, ensure the correct tab is active based on server-side active_tab
+            const activeTabContent = document.querySelector('.tab-content.active');
+            if (activeTabContent) {
+                const tabId = activeTabContent.id;
+                const tabName = tabId.replace('-tab', '');
+                // Activate corresponding tab buttons
+                const tabButton = document.querySelector(`.content-tab[data-tab="${tabName}"]`);
+                const navLink = document.querySelector(`.nav-link[data-tab="${tabName}"]`);
+                if (tabButton && !tabButton.classList.contains('active')) {
+                    tabButton.classList.add('active');
+                }
+                if (navLink && !navLink.classList.contains('active')) {
+                    navLink.classList.add('active');
+                }
+            }
+            
             const processTypeRadios = document.querySelectorAll('input[name="process_type"]');
             const inputLabel = document.getElementById('input-label');
             const inputField = document.getElementById('process_input');
             const inputFormatText = document.getElementById('input-format-text');
+            
+            // Initialize label and placeholder based on selected process_type
+            const selectedProcessType = document.querySelector('input[name="process_type"]:checked');
+            if (selectedProcessType && inputLabel && inputField) {
+                if (selectedProcessType.value === 'decrypt') {
+                    inputLabel.textContent = 'Ciphertext (8-bit)';
+                    inputField.placeholder = 'Nhập ciphertext (VD: 11001101, CD, 205)';
+                    inputFormatText.textContent = 'Có thể nhập: Binary (11001101), Hex (CD), Decimal (205)';
+                } else {
+                    inputLabel.textContent = 'Plaintext (8-bit)';
+                    inputField.placeholder = 'Nhập plaintext (VD: 01011100, 5C, 92)';
+                    inputFormatText.textContent = 'Có thể nhập: Binary (01011100), Hex (5C), Decimal (92)';
+                }
+            }
             
             if (processTypeRadios.length > 0) {
                 processTypeRadios.forEach(radio => {
@@ -676,35 +718,64 @@
                             inputFormatText.textContent = 'Có thể nhập: Binary (01011100), Hex (5C), Decimal (92)';
                         } else {
                             inputLabel.textContent = 'Ciphertext (8-bit)';
-                            inputField.placeholder = 'Nhập ciphertext (VD: 01011100, 5C, 92)';
-                            inputFormatText.textContent = 'Có thể nhập: Binary (01011100), Hex (5C), Decimal (92)';
+                            inputField.placeholder = 'Nhập ciphertext (VD: 11001101, CD, 205)';
+                            inputFormatText.textContent = 'Có thể nhập: Binary (11001101), Hex (CD), Decimal (205)';
                         }
                     });
                 });
             }
             
-            // Check if result section exists (meaning form was submitted and result is shown)
+            // Auto scroll to result section or process details section when they exist
             const resultSection = document.getElementById('result-section');
-            if (resultSection) {
-                // Wait for page to fully render and tab to be set active
+            const processDetailsSection = document.getElementById('process-details-section');
+            const targetSection = resultSection || processDetailsSection;
+            
+            if (targetSection) {
+                // Find which tab contains the result/process details
+                const resultTabContent = targetSection.closest('.tab-content');
+                if (resultTabContent) {
+                    const tabId = resultTabContent.id;
+                    const tabName = tabId.replace('-tab', '');
+                    
+                    // Ensure the tab containing result is active (should already be from server)
+                    if (!resultTabContent.classList.contains('active')) {
+                        // Only switch if not already active
+                        const tabButton = document.querySelector(`.content-tab[data-tab="${tabName}"]`);
+                        const navLink = document.querySelector(`.nav-link[data-tab="${tabName}"]`);
+                        if (tabButton) {
+                            showTab(tabName, tabButton);
+                        } else if (navLink) {
+                            showTab(tabName, navLink);
+                        }
+                    }
+                    
+                    // Ensure buttons are active for the tab containing result
+                    const tabButton = document.querySelector(`.content-tab[data-tab="${tabName}"]`);
+                    const navLink = document.querySelector(`.nav-link[data-tab="${tabName}"]`);
+                    if (tabButton) {
+                        tabButton.classList.add('active');
+                    }
+                    if (navLink) {
+                        navLink.classList.add('active');
+                    }
+                }
+                
+                // Scroll to result section or process details section
                 setTimeout(function() {
-                    // Smooth scroll to result section (CSS scroll-margin-top handles offset)
-                    resultSection.scrollIntoView({ 
+                    targetSection.scrollIntoView({ 
                         behavior: 'smooth', 
                         block: 'center',
                         inline: 'nearest'
                     });
                     
-                    // Add a subtle highlight animation to draw attention
-                    resultSection.style.boxShadow = '0 10px 40px rgba(255, 193, 7, 0.6)';
-                    resultSection.style.transform = 'scale(1.02)';
+                    targetSection.style.boxShadow = '0 10px 40px rgba(255, 193, 7, 0.6)';
+                    targetSection.style.transform = 'scale(1.02)';
                     
-                    // Remove highlight after animation
                     setTimeout(function() {
-                        resultSection.style.boxShadow = '';
-                        resultSection.style.transform = '';
+                        targetSection.style.boxShadow = '';
+                        targetSection.style.transform = '';
                     }, 2000);
-                }, 500); // Wait for tab to be set active
+                }, 500);
             }
         });
     </script>

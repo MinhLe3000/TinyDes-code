@@ -21,14 +21,30 @@ def ensure_theory_image():
         except Exception as e:
             print(f"Không thể copy hình ảnh: {e}")
 
+# Copy ảnh avatar vào static folder nếu chưa có
+def ensure_avatar_image():
+    source = "templates/robotava.jpg"
+    destination = "static/robotava.jpg"
+    
+    if os.path.exists(source) and not os.path.exists(destination):
+        try:
+            shutil.copy(source, destination)
+            print(f"Đã copy ảnh avatar từ {source} đến {destination}")
+        except Exception as e:
+            print(f"Không thể copy ảnh avatar: {e}")
+
 # Đảm bảo hình ảnh lý thuyết có sẵn
 ensure_theory_image()
+# Đảm bảo ảnh avatar có sẵn
+ensure_avatar_image()
 
 # Khởi tạo FastAPI app
 app = FastAPI(
-    title="TinyDES Web Application",
-    description="Ứng dụng web cho thuật toán mã hóa TinyDES",
-    version="1.0.0"
+    title="HỆ THỐNG MÃ HÓA TINYDES",
+    description="Hệ thống mã hóa TinyDES - Đại học Kinh tế Quốc dân (NEU) - Khoa CNTT. Ứng dụng web chuyên nghiệp cho thuật toán mã hóa TinyDES với giao diện hiện đại và dễ sử dụng.",
+    version="2.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc"
 )
 
 # Cấu hình templates và static files
@@ -133,7 +149,7 @@ def convert_input(user_input: str, expected_bits: int) -> Union[str, None]:
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request, tab: str = "theory"):
-    """Trang chủ với giao diện TinyDES"""
+    """Trang chủ HỆ THỐNG MÃ HÓA TINYDES với giao diện mới (header, sidebar, main content)"""
     return templates.TemplateResponse("index.html", {
         "request": request,
         "active_tab": tab
@@ -143,6 +159,9 @@ async def home(request: Request, tab: str = "theory"):
 async def process_detailed(request: Request, plaintext: str = Form(...), key: str = Form(...), process_type: str = Form("encrypt")):
     """Xử lý form hiển thị quy trình chi tiết mã hóa/giải mã"""
     try:
+        # Đảm bảo process_type có giá trị hợp lệ
+        if not process_type or process_type not in ["encrypt", "decrypt"]:
+            process_type = "encrypt"
         # Convert inputs
         if process_type == "encrypt":
             input_bin = convert_input(plaintext, 8)
@@ -153,7 +172,8 @@ async def process_detailed(request: Request, plaintext: str = Form(...), key: st
                     "error": error,
                     "plaintext": plaintext,
                     "key": key,
-                    "active_tab": "process"
+                    "active_tab": "process",
+                    "process_type": process_type  # Giữ nguyên lựa chọn process_type
                 })
         else:  # decrypt
             input_bin = convert_input(plaintext, 8)
@@ -164,7 +184,8 @@ async def process_detailed(request: Request, plaintext: str = Form(...), key: st
                     "error": error,
                     "plaintext": plaintext,
                     "key": key,
-                    "active_tab": "process"
+                    "active_tab": "process",
+                    "process_type": process_type  # Giữ nguyên lựa chọn process_type
                 })
         
         key_bin = convert_input(key, 8)
@@ -175,7 +196,8 @@ async def process_detailed(request: Request, plaintext: str = Form(...), key: st
                 "error": error,
                 "plaintext": plaintext,
                 "key": key,
-                "active_tab": "process"
+                "active_tab": "process",
+                "process_type": process_type  # Giữ nguyên lựa chọn process_type
             })
         
         # Get detailed process
@@ -191,7 +213,8 @@ async def process_detailed(request: Request, plaintext: str = Form(...), key: st
             "process_details": process_details,
             "plaintext": plaintext,
             "key": key,
-            "active_tab": "process"
+            "active_tab": "process",  # Luôn hiển thị trong tab "Quy trình"
+            "process_type": process_type  # Giữ nguyên lựa chọn process_type
         })
         
     except Exception as e:
@@ -201,7 +224,8 @@ async def process_detailed(request: Request, plaintext: str = Form(...), key: st
             "error": error,
             "plaintext": plaintext,
             "key": key,
-            "active_tab": "process"
+            "active_tab": "process",
+            "process_type": process_type  # Giữ nguyên lựa chọn process_type
         })
 
 @app.post("/encrypt", response_class=HTMLResponse)
@@ -324,10 +348,14 @@ async def decrypt_form(request: Request, ciphertext: str = Form(...), key: str =
 
 @app.get("/api/info")
 async def get_info():
-    """Lấy thông tin về TinyDES"""
+    """Lấy thông tin về Hệ thống Mã hóa TinyDES"""
     return {
+        "system_name": "HỆ THỐNG MÃ HÓA TINYDES",
+        "version": "2.0.0",
+        "university": "Đại học Kinh tế Quốc dân (NEU)",
+        "faculty": "Khoa CNTT",
         "algorithm": "TinyDES",
-        "description": "Phiên bản thu nhỏ của thuật toán DES",
+        "description": "Phiên bản thu nhỏ của thuật toán DES, được thiết kế cho mục đích giáo dục và học tập",
         "specifications": {
             "block_size": "8 bit",
             "key_size": "8 bit",
@@ -339,13 +367,28 @@ async def get_info():
             "sbox": "6 bit → 4 bit (4x16 matrix)",
             "pbox": "4 bit → 4 bit (permutation)",
             "key_schedule": "8 bit → 6 bit (compression)"
-        }
+        },
+        "features": [
+            "Mã hóa/Giải mã 8-bit dữ liệu",
+            "Hỗ trợ Binary, Hex, Decimal input",
+            "Quy trình chi tiết từng bước",
+            "Test functions cho từng component",
+            "Giao diện chuyên nghiệp với header, sidebar và main content",
+            "Responsive design cho mobile và tablet"
+        ]
     }
 
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
-    return {"status": "healthy", "message": "TinyDES Web App is running"}
+    return {
+        "status": "healthy",
+        "message": "HỆ THỐNG MÃ HÓA TINYDES đang hoạt động",
+        "system": "HỆ THỐNG MÃ HÓA TINYDES",
+        "version": "2.0.0",
+        "university": "Đại học Kinh tế Quốc dân (NEU)",
+        "faculty": "Khoa CNTT"
+    }
 
 # Test Functions Routes
 

@@ -1,4 +1,4 @@
-# Hướng dẫn chạy TinyDES Web Application
+# Hướng dẫn chạy HỆ THỐNG MÃ HÓA TINYDES
 
 ## Yêu cầu hệ thống
 
@@ -50,9 +50,10 @@ uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
 Sau khi server khởi động thành công, mở trình duyệt và truy cập:
 
-- **Giao diện web**: http://localhost:8000
-- **API Documentation (Swagger)**: http://localhost:8000/docs
-- **Health Check**: http://localhost:8000/health
+- **🌐 Giao diện web**: http://localhost:8000
+- **📚 API Documentation (Swagger)**: http://localhost:8000/docs
+- **🔧 Health Check**: http://localhost:8000/health
+- **📊 API Info**: http://localhost:8000/api/info
 
 ## Cấu trúc lệnh chi tiết
 
@@ -89,11 +90,16 @@ Sau khi server khởi động thành công, mở trình duyệt và truy cập:
 Khi server khởi động thành công, bạn sẽ thấy thông báo:
 
 ```
-🚀 Đang khởi động TinyDES API Server...
+============================================================
+🚀 Đang khởi động HỆ THỐNG MÃ HÓA TINYDES
+📚 Đại học Kinh tế Quốc dân (NEU) - Khoa CNTT
+============================================================
 📡 Server sẽ chạy tại: http://0.0.0.0:8000
+🌐 Giao diện web: http://localhost:8000
 📚 API Documentation: http://0.0.0.0:8000/docs
 🔧 Health Check: http://0.0.0.0:8000/health
-==================================================
+📊 API Info: http://0.0.0.0:8000/api/info
+============================================================
 INFO:     Started server process
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.

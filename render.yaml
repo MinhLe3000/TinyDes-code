@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: tinydes-web
+    name: he-thong-ma-hoa-tinydes
     env: python
     plan: free
     buildCommand: pip install -r requirements.txt
